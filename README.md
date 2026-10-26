@@ -78,6 +78,7 @@ Every step takes `after`, the pause that follows it in ms. `click`, `type`, `fil
 | `hide`          | dev overlays   | Extra CSS selectors to hide; `false` shows the Next.js and Vercel overlays too                         |
 | `travelMs`      | 700            | How long the cursor takes to reach each target                                                        |
 | `settle`        | 1500           | Wait after load, in ms                                                                                |
+| `waitUntil`     | `networkidle`  | When the page counts as loaded: `load` or `domcontentloaded` for pages that never go idle (streaming video, polling) |
 | `tail`          | 1200           | Hold at the end, in ms                                                                                |
 | `cursorStart`   | near the first | Where the cursor starts, `[x, y]`                                                                     |
 | `reducedMotion` | `false`        | Record with reduced motion on                                                                         |
