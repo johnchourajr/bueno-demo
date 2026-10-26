@@ -1,0 +1,55 @@
+{
+  "name": "bueno-demo",
+  "version": "0.1.0",
+  "description": "Screen Studio-style product demo videos from a JSON script: a real browser, an eased zoom-to-click camera and a spring-smoothed cursor.",
+  "keywords": [
+    "demo",
+    "screen-recording",
+    "screencast",
+    "product-video",
+    "playwright",
+    "remotion",
+    "agent-skill",
+    "claude-code"
+  ],
+  "license": "MIT",
+  "author": "John Choura",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnchourajr/bueno-demo.git"
+  },
+  "homepage": "https://github.com/johnchourajr/bueno-demo#readme",
+  "type": "module",
+  "bin": {
+    "bueno-demo": "bin/bueno-demo.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "src",
+    "skills",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.535",
+    "@remotion/renderer": "4.0.535",
+    "playwright": "1.64.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.535",
+    "@types/react": "^19.2.0",
+    "typescript": "^5.9.0"
+  }
+}
