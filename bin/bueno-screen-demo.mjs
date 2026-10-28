@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// bueno-demo: capture a scripted demo in a real browser, then render it into
+// bueno-screen-demo: capture a scripted demo in a real browser, then render it into
 // a polished video. See README.md.
 
 const [command, ...args] = process.argv.slice(2);
 
-const usage = `bueno-demo <command>
+const usage = `bueno-screen-demo <command>
 
   capture <script.json> <out-dir> [--base <origin>] [--storage <state.json>]
           [--cookies-from agent-browser]
@@ -33,6 +33,6 @@ const { run } = await commands[command]();
 try {
   await run(args);
 } catch (err) {
-  console.error(`bueno-demo ${command}: ${err.message}`);
+  console.error(`bueno-screen-demo ${command}: ${err.message}`);
   process.exit(1);
 }

@@ -1,10 +1,10 @@
-# bueno-demo
+# bueno-screen-demo
 
-[![npm](https://img.shields.io/npm/v/bueno-demo)](https://www.npmjs.com/package/bueno-demo)
+[![npm](https://img.shields.io/npm/v/@bueno-dev/screen-demo)](https://www.npmjs.com/package/@bueno-dev/screen-demo)
 
-Polished product demo videos from a JSON script. `bueno-demo` drives a real browser through your app, records it at 2x, and renders a Screen Studio-style clip: the camera eases in toward each click, a drawn cursor glides on a spring, clicks ripple, and an optional title and end card wear your brand.
+Polished product demo videos from a JSON script. `bueno-screen-demo` drives a real browser through your app, records it at 2x, and renders a Screen Studio-style clip: the camera eases in toward each click, a drawn cursor glides on a spring, clicks ripple, and an optional title and end card wear your brand.
 
-It ships with an [Agent Skill](skills/bueno-demo/SKILL.md), so Claude Code and other agents can write the script and record the demo for you.
+It ships with an [Agent Skill](skills/bueno-screen-demo/SKILL.md), so Claude Code and other agents can write the script and record the demo for you.
 
 Built at [Bueno](https://bueno.fund) for release notes and docs.
 
@@ -20,27 +20,27 @@ Capture opens a real, headed Chromium window parked off-screen, because headless
 ## Quick start
 
 ```bash
-npm i -D bueno-demo
+npm i -D @bueno-dev/screen-demo
 npx playwright install chromium
 
-npx bueno-demo capture node_modules/bueno-demo/examples/settings.json out/example
-npx bueno-demo render out/example out/example/example --gif
+npx bueno-screen-demo capture node_modules/@bueno-dev/screen-demo/examples/settings.json out/example
+npx bueno-screen-demo render out/example out/example/example --gif
 ```
 
 You get `out/example/example.mp4` (1920×1200, H.264), a poster, and a GIF.
 
 ## Install the skill
 
-The skill is listed on [skills.sh](https://skills.sh/johnchourajr/bueno-demo). Add it to your agent with:
+The skill is listed on [skills.sh](https://skills.sh/johnchourajr/bueno-screen-demo). Add it to your agent with:
 
 ```bash
-npx skills add johnchourajr/bueno-demo
+npx skills add johnchourajr/bueno-screen-demo
 ```
 
 Or copy it from the package into your agent's skills folder, for example for Claude Code:
 
 ```bash
-mkdir -p .claude/skills && cp -r node_modules/bueno-demo/skills/bueno-demo .claude/skills/
+mkdir -p .claude/skills && cp -r node_modules/@bueno-dev/screen-demo/skills/bueno-screen-demo .claude/skills/
 ```
 
 Then ask: "record a demo of the new billing toggle".
@@ -91,12 +91,12 @@ Every step takes `after`, the pause that follows it in ms. `click`, `type`, `fil
 | `cursorStart`   | near the first | Where the cursor starts, `[x, y]`                                                                                    |
 | `reducedMotion` | `false`        | Record with reduced motion on                                                                                        |
 
-`--base <origin>` on capture (or `BUENO_DEMO_BASE`) records the same path against another server.
+`--base <origin>` on capture (or `BUENO_SCREEN_DEMO_BASE`) records the same path against another server.
 
 ## Render
 
 ```bash
-npx bueno-demo render <capture-dir> <out-base> [flags]
+npx bueno-screen-demo render <capture-dir> <out-base> [flags]
 ```
 
 | Flag             | What it does                                          |
@@ -131,7 +131,7 @@ A brand file (paths relative to it):
 }
 ```
 
-`npx bueno-demo cut <capture-dir> <from> <to>` removes a span (a slow load) from a capture before rendering, shifting later clicks so the camera still lines up.
+`npx bueno-screen-demo cut <capture-dir> <from> <to>` removes a span (a slow load) from a capture before rendering, shifting later clicks so the camera still lines up.
 
 ## How it works
 

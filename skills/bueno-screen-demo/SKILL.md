@@ -1,26 +1,26 @@
 ---
-name: bueno-demo
+name: bueno-screen-demo
 description: Record a short, polished product demo video of a web app (a real browser, an eased zoom toward each click, a spring-smoothed cursor) and export MP4, a poster and optionally a GIF. Use when a moving demo explains a feature better than a screenshot, for release notes, docs, decks, PRs or Slack. Triggers on "record a demo", "demo video", "screen recording of", "make a GIF of", "show this feature in a video".
 ---
 
-# Demo videos with bueno-demo
+# Demo videos with bueno-screen-demo
 
-`bueno-demo` records a scripted walk through a web page and renders it into a Screen Studio-style clip. There are two steps: **capture** drives a real Chromium window and records it, and **render** adds the camera, cursor and titles.
+`bueno-screen-demo` records a scripted walk through a web page and renders it into a Screen Studio-style clip. There are two steps: **capture** drives a real Chromium window and records it, and **render** adds the camera, cursor and titles.
 
 ## Setup, once per machine
 
 ```bash
-npm i -D bueno-demo            # or run everything with npx bueno-demo
+npm i -D @bueno-dev/screen-demo   # or skip it: npx @bueno-dev/screen-demo <command>
 npx playwright install chromium
-brew install ffmpeg            # required; add imagemagick for WebP posters
+brew install ffmpeg               # required; add imagemagick for WebP posters
 ```
 
 ## The loop
 
 1. **Write a script**, a JSON file (see below). Keep one idea per clip, 10 to 15 seconds.
-2. **Capture:** `npx bueno-demo capture demos/<name>.json out/<name>`
-3. **Optional cut** of a slow load: `npx bueno-demo cut out/<name> <from-s> <to-s>`
-4. **Render:** `npx bueno-demo render out/<name> out/<name>/<name> --gif`
+2. **Capture:** `npx bueno-screen-demo capture demos/<name>.json out/<name>`
+3. **Optional cut** of a slow load: `npx bueno-screen-demo cut out/<name> <from-s> <to-s>`
+4. **Render:** `npx bueno-screen-demo render out/<name> out/<name>/<name> --gif`
 5. **Look at it before using it.** Make a contact sheet and check every frame:
    `ffmpeg -i out/<name>/<name>.mp4 -vf "fps=1,scale=640:-1,tile=3x4" -frames:v 1 sheet.png`
    If a bug or private data shows on camera, fix the script or cut it, then re-render.
@@ -45,6 +45,7 @@ brew install ffmpeg            # required; add imagemagick for WebP posters
 ```
 
 **Steps**, each optionally with `after` (ms to pause afterwards):
+
 - `click`: glide to the element and click. `zoom: false` skips the camera zoom; use it on a click that navigates.
 - `type`: click, then type `text` (`delay` ms per key, default 55; `clear: true` replaces the value).
 - `fill`: click, then set `text` at once, for inputs typing can't drive (date pickers).
@@ -55,6 +56,7 @@ brew install ffmpeg            # required; add imagemagick for WebP posters
 - `wait`: pause, in ms. `eval`: run JS in the page, on camera.
 
 **Options:**
+
 - **Signing in:** `storage` points at a Playwright storage-state file (save one with `npx playwright codegen --save-storage=auth.json <url>`). Or `"cookiesFrom": "agent-browser"` borrows a signed-in agent-browser session. Cookies are never printed.
 - **Privacy:** `keep` is JS run before recording and every 250ms during it, to swap real names and emails for stand-ins so a re-render never brings them back. `hide` adds CSS selectors to hide (dev overlays from Next.js and Vercel are hidden already; `"hide": false` shows them).
 - **Off camera:** `setup` is JS run once before recording (closing a banner, say).
