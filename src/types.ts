@@ -4,7 +4,9 @@ export type DemoEvent =
   | { type: "click"; t: number; x: number; y: number; zoom: boolean }
   /** A hover the camera zooms to, like a click without the ripple. */
   | { type: "focus"; t: number; x: number; y: number }
-  | { type: "scroll"; t: number };
+  | { type: "scroll"; t: number }
+  /** A line the cursor says from here on; null clears it. */
+  | { type: "say"; t: number; text: string | null };
 
 /** A font file served next to the capture (see render's --brand). */
 export type BrandFont = { family: string; file?: string; weight?: string };

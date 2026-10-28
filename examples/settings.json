@@ -2,8 +2,8 @@
   "url": "settings.html",
   "viewport": [1280, 800],
   "steps": [
-    { "type": "[data-testid=team-name]", "text": "Northwind", "clear": true, "after": 600 },
-    { "click": "[data-testid=summaries]", "after": 800 },
-    { "click": "[data-testid=save]", "after": 1200 }
+    { "type": "[data-testid=team-name]", "text": "Northwind", "clear": true, "after": 600, "say": "Name the team" },
+    { "click": "[data-testid=summaries]", "after": 800, "say": "Turn on the weekly summary" },
+    { "click": "[data-testid=save]", "after": 1200, "say": "Save, and done" }
   ]
 }

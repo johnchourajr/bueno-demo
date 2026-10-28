@@ -77,7 +77,7 @@ A script is the page, the viewport and a list of steps:
 | `wait`   | Pauses, in ms.                                                                        |
 | `eval`   | Runs JS in the page, on camera.                                                       |
 
-Every step takes `after`, the pause that follows it in ms. `click`, `type`, `fill` and `hover` take `at: [fx, fy]` to aim at a point within the element.
+Every step takes `after`, the pause that follows it in ms, and `say`, a line shown in a bubble beside the cursor until a later step says something else (or nothing). `click`, `type`, `fill` and `hover` take `at: [fx, fy]` to aim at a point within the element.
 
 | Option          | Default        | What it does                                                                                                         |
 | --------------- | -------------- | -------------------------------------------------------------------------------------------------------------------- |
