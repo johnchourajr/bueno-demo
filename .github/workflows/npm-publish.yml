@@ -1,0 +1,47 @@
+name: Publish to NPM
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # Matches version tags like v0.1.1, v1.0.0, etc.
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Lets npm trusted publishing exchange the OIDC token for a publish credential
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24" # Ships npm 11, which trusted publishing needs
+          registry-url: "https://registry.npmjs.org/"
+          cache: pnpm
+
+      - name: Check the tag matches package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # npm, not pnpm, so the publish goes through npm's trusted publishing
+      - name: Publish to NPM
+        run: npm publish --access public
