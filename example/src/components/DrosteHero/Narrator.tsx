@@ -27,7 +27,8 @@ export const Narrator = forwardRef<HTMLDivElement, NarratorProps>(
         </svg>
         <span
           className={clsx(
-            "absolute left-[22px] top-[-6px] whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-caption text-black",
+            // Too wide for a phone stage; the HUD names the step there instead.
+            "absolute left-[22px] top-[-6px] whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-caption text-black max-md:hidden",
             !say && "hidden",
           )}
         >
