@@ -217,7 +217,7 @@ export const heroScript: ScriptLine[] = [
 export const heroScene: Scene = {
   id: "hero",
   label:
-    "A recorded demo of a settings page: the cursor types a team name, flips a toggle and saves. Click it, then scroll to scrub.",
+    "A recorded demo of a settings page: the cursor types a team name, flips a toggle and saves. Click to play or pause; drag, or click and scroll, to scrub.",
   steps: [
     {
       verb: "hover",

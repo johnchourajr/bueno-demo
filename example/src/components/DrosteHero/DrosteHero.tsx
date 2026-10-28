@@ -48,6 +48,7 @@ export function DrosteHero() {
               paused={paused || playing !== null}
               onStep={setActive}
               testId="hero-stage"
+              onToggle={() => setPaused((p) => !p)}
               hud
             />
           )}
@@ -157,6 +158,7 @@ function Take({ scene, index, reduced, playing, onPlaying }: TakeProps) {
           scene={scene}
           paused={!playing}
           testId={`take-${scene.id}-stage`}
+          onToggle={() => onPlaying(!playing)}
           ditherAtRest
         />
       )}

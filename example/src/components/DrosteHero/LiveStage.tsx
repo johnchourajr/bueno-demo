@@ -13,6 +13,8 @@ const IDLE_MS = 2500;
 /** Steps per pixel of wheel delta, and per pixel of horizontal drag. */
 const WHEEL_RATE = 0.0016;
 const DRAG_RATE = 0.006;
+/** Pixels a press can wander and still count as a click rather than a drag. */
+const CLICK_SLOP = 4;
 /** How long a paused frame takes to come back into focus. */
 const SETTLE_MS = 400;
 /** How far out of focus a resting take sits, in levels. */
@@ -28,6 +30,8 @@ type LiveStageProps = {
   testId: string;
   /** The step and timeline chips. The hero has room for them; the takes go without. */
   hud?: boolean;
+  /** A click on the stage (not a drag) plays or pauses it, like a video. */
+  onToggle?: () => void;
   /**
    * Plays sharp and rests in dither: no defocus on camera moves, and the frame
    * falls out of focus while paused. The takes use it; the hero does the reverse.
@@ -41,6 +45,7 @@ export function LiveStage({
   onStep,
   testId,
   hud = false,
+  onToggle,
   ditherAtRest = false,
 }: LiveStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -53,10 +58,12 @@ export function LiveStage({
   const sceneRef = useRef(scene);
   const pausedRef = useRef(paused);
   const onStepRef = useRef(onStep);
+  const onToggleRef = useRef(onToggle);
   const ditherRef = useRef(ditherAtRest);
   sceneRef.current = scene;
   pausedRef.current = paused;
   onStepRef.current = onStep;
+  onToggleRef.current = onToggle;
   ditherRef.current = ditherAtRest;
 
   const [step, setStep] = useState(0);
@@ -98,25 +105,33 @@ export function LiveStage({
       engaged = false;
     };
     let dragX: number | null = null;
+    let downX = 0;
+    let dragging = false;
     const onDown = (e: PointerEvent) => {
       engaged = true;
-      lastInput = performance.now();
-      dragX = e.clientX;
+      dragX = downX = e.clientX;
+      dragging = false;
       stage.setPointerCapture(e.pointerId);
     };
     const onMove = (e: PointerEvent) => {
       if (dragX === null) return;
-      nudge((e.clientX - dragX) * DRAG_RATE);
+      // A few pixels of wobble is still a click; past that it's a scrub.
+      if (Math.abs(e.clientX - downX) > CLICK_SLOP) dragging = true;
+      if (dragging) nudge((e.clientX - dragX) * DRAG_RATE);
       dragX = e.clientX;
     };
     const onUp = () => {
+      if (dragX !== null && !dragging) onToggleRef.current?.();
+      dragX = null;
+    };
+    const onCancel = () => {
       dragX = null;
     };
     stage.addEventListener("wheel", onWheel, { passive: false });
     stage.addEventListener("pointerdown", onDown);
     stage.addEventListener("pointermove", onMove);
     stage.addEventListener("pointerup", onUp);
-    stage.addEventListener("pointercancel", onUp);
+    stage.addEventListener("pointercancel", onCancel);
     stage.addEventListener("pointerleave", onLeave);
 
     let previous = performance.now();
@@ -199,7 +214,7 @@ export function LiveStage({
       stage.removeEventListener("pointerdown", onDown);
       stage.removeEventListener("pointermove", onMove);
       stage.removeEventListener("pointerup", onUp);
-      stage.removeEventListener("pointercancel", onUp);
+      stage.removeEventListener("pointercancel", onCancel);
       stage.removeEventListener("pointerleave", onLeave);
     };
   }, []);
