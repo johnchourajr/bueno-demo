@@ -64,6 +64,9 @@ fn tap(pos: vec2f) -> vec3f {
   return textureSampleLevel(tex, samp, look(pos).xy, 0.0).rgb;
 }
 
+const FLOOR = 0.08;
+const LEVELS = 4.0;
+
 fn bayer2(x: u32, y: u32) -> u32 { return ((x ^ y) & 1u) * 2u + (y & 1u); }
 
 @fragment fn fs(@builtin(position) pos: vec4f) -> @location(0) vec4f {
@@ -86,9 +89,11 @@ fn bayer2(x: u32, y: u32) -> u32 { return ((x ^ y) & 1u) * 2u + (y & 1u); }
   let x = u32(id.x);
   let y = u32(id.y);
   let threshold = (f32(bayer2(x, y) * 4u + bayer2(x >> 1u, y >> 1u)) + 0.5) / 16.0;
-  // One bit per pixel, keeping each colour's hue: lit at full brightness or off.
+  // Brightness steps in four levels, keeping each colour's hue. Near-black
+  // sits under the floor, so dark window fills stay black instead of speckling.
   let m = max(soft.r, max(soft.g, soft.b));
-  let lit = select(vec3f(0.0), soft / max(m, 0.001), m > threshold);
+  let level = floor(max(m - FLOOR, 0.0) / (1.0 - FLOOR) * LEVELS + threshold) / LEVELS;
+  let lit = soft / max(m, 0.001) * level;
   return vec4f(mix(sharp, lit, amount), 1.0);
 }
 `;
@@ -124,6 +129,9 @@ vec3 look(vec2 pos) {
 
 vec3 tap(vec2 pos) { return texture(tex, look(pos).xy).rgb; }
 
+const float FLOOR = 0.08;
+const float LEVELS = 4.0;
+
 int bayer2(int x, int y) { return ((x ^ y) & 1) * 2 + (y & 1); }
 
 void main() {
@@ -147,7 +155,8 @@ void main() {
   int y = int(id.y);
   float threshold = (float(bayer2(x, y) * 4 + bayer2(x >> 1, y >> 1)) + 0.5) / 16.0;
   float m = max(soft.r, max(soft.g, soft.b));
-  vec3 lit = m > threshold ? soft / max(m, 0.001) : vec3(0.0);
+  float level = floor(max(m - FLOOR, 0.0) / (1.0 - FLOOR) * LEVELS + threshold) / LEVELS;
+  vec3 lit = soft / max(m, 0.001) * level;
   o = vec4(mix(sharp, lit, amount), 1.0);
 }`;
 

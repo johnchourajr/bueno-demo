@@ -24,10 +24,11 @@ type LiveStageProps = {
   paused: boolean;
   onStep?: (step: number) => void;
   testId: string;
-  /** What the mode chip says while paused and while playing. */
-  hints: { paused: string; playing: string };
-  /** Shows the timeline readout; the hero has room for it, the takes don't. */
-  showTime?: boolean;
+  /**
+   * The step, timeline and mode chips, with what the mode chip says while
+   * paused and while playing. The hero has room for them; the takes go without.
+   */
+  hud?: { paused: string; playing: string };
 };
 
 export function LiveStage({
@@ -35,8 +36,7 @@ export function LiveStage({
   paused,
   onStep,
   testId,
-  hints,
-  showTime = false,
+  hud,
 }: LiveStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -49,11 +49,11 @@ export function LiveStage({
   const sceneRef = useRef(scene);
   const pausedRef = useRef(paused);
   const onStepRef = useRef(onStep);
-  const hintsRef = useRef(hints);
+  const hudRef = useRef(hud);
   sceneRef.current = scene;
   pausedRef.current = paused;
   onStepRef.current = onStep;
-  hintsRef.current = hints;
+  hudRef.current = hud;
 
   const [step, setStep] = useState(0);
 
@@ -157,7 +157,9 @@ export function LiveStage({
       );
       if (view.clicked) {
         const ripple = rippleRef.current!;
-        ripple.style.transform = `translate(${px}px, ${py}px)`;
+        // The translate property, not transform: the ripple animates scale, and
+        // CSS applies a transform inside the scale, which would scale the position too.
+        ripple.style.translate = `${px}px ${py}px`;
         ripple.classList.remove("animate-ripple");
         void ripple.offsetWidth;
         ripple.classList.add("animate-ripple");
@@ -168,11 +170,14 @@ export function LiveStage({
         onStepRef.current?.(view.step);
       }
       if (timeRef.current) timeRef.current.textContent = `T ${t.toFixed(2)}`;
-      modeRef.current!.textContent = driving
-        ? "You have control"
-        : pausedRef.current
-          ? hintsRef.current.paused
-          : hintsRef.current.playing;
+      const hints = hudRef.current;
+      if (modeRef.current && hints) {
+        modeRef.current.textContent = driving
+          ? "You have control"
+          : pausedRef.current
+            ? hints.paused
+            : hints.playing;
+      }
       raf = requestAnimationFrame(frame);
     };
 
@@ -218,19 +223,19 @@ export function LiveStage({
       />
       <Narrator ref={narratorRef} say={current.say} />
 
-      <div className="absolute left-3 right-3 top-2 z-30 flex justify-between gap-2 pointer-events-none">
-        <span className={LABEL}>
-          Step {step + 1} / {current.verb}
-        </span>
-        {showTime && (
+      {hud && (
+        <div className="absolute left-3 right-3 top-2 z-30 flex justify-between gap-2 pointer-events-none">
+          <span className={LABEL}>
+            Step {step + 1} / {current.verb}
+          </span>
           <span
             ref={timeRef}
             className={clsx(LABEL, "hidden md:inline font-mono tabular-nums")}
           />
-        )}
-      </div>
+        </div>
+      )}
       <div className="absolute bottom-2 left-3 right-3 z-30 flex flex-wrap justify-between gap-2 pointer-events-none">
-        <span ref={modeRef} className={LABEL} />
+        {hud && <span ref={modeRef} className={LABEL} />}
         {/* The narrator's bubble is hidden on phones, so the line shows here. */}
         <span className="md:hidden rounded-sm bg-black px-2 py-1 text-caption text-primary">
           {current.say}

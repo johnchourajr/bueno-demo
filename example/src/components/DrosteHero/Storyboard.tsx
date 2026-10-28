@@ -10,13 +10,21 @@ type StoryboardProps = {
   active: number;
   onPick: (step: number) => void;
   testId: string;
+  /** Labels the frame as a storyboard; the hero has room for it, the takes don't. */
+  hud?: boolean;
 };
 
 /**
- * The reduced-motion hero: one still frame with a numbered pin for each step,
+ * The reduced-motion stage: one still frame with a numbered pin for each step,
  * matched to the numbered script lines. Nothing moves unless you point at it.
  */
-export function Storyboard({ scene, active, onPick, testId }: StoryboardProps) {
+export function Storyboard({
+  scene,
+  active,
+  onPick,
+  testId,
+  hud = false,
+}: StoryboardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -88,9 +96,11 @@ export function Storyboard({ scene, active, onPick, testId }: StoryboardProps) {
         </button>
       ))}
       <div className="absolute bottom-2 left-3 right-3 z-10 flex flex-wrap justify-between gap-2">
-        <span className="rounded-sm bg-black px-2 py-1 text-string text-primary">
-          Storyboard / motion is reduced
-        </span>
+        {hud && (
+          <span className="rounded-sm bg-black px-2 py-1 text-string text-primary">
+            Storyboard / motion is reduced
+          </span>
+        )}
         <span className="rounded-sm bg-black px-2 py-1 text-caption text-primary">
           {active + 1}. {scene.steps[active].say}
         </span>

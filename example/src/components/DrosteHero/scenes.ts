@@ -1,4 +1,3 @@
-import { logotypeLines } from "../SvgHeader/logotype";
 import type { Camera, HeroBox } from "./renderers";
 
 // A scene is what a stage shows: a source frame to draw, the steps it walks
@@ -83,7 +82,7 @@ const TRAVEL_BLUR = 0.7;
 /** Each step's camera and cursor moves finish by MOVE; clicks land at CLICK. */
 const MOVE = 0.45;
 const CLICK = 0.5;
-/** Where the last step starts its move back out: the hero dives, the takes ease out wide. */
+/** Where the last step starts easing back out to the wide shot. */
 const EXIT = 0.6;
 
 type Shot = { c: [number, number]; s: number };
@@ -157,22 +156,6 @@ function timecode(ms: number) {
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(frames % 30)}`;
 }
 
-function dotted(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.setLineDash([3, 6]);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
-  ctx.restore();
-}
-
 /** A window with a title bar, filling the frame with a margin. Returns the content top. */
 function windowChrome(ctx: CanvasRenderingContext2D, title: string) {
   ctx.fillStyle = "#000";
@@ -202,139 +185,87 @@ function windowChrome(ctx: CanvasRenderingContext2D, title: string) {
   return 124;
 }
 
-// ── Hero: the page, holding a recording of itself ──
-//
-// The camera tours the page one step at a time while the cursor stays on the
-// outer layer. The last step dives into the hero box, racking focus onto the
-// copy inside. That copy is the page again at full size, so the loop restarts
-// on exactly the frame the dive ends on.
+// ── Hero: the settings example, played the way the CLI records it ──
 
-const HERO_BOX: HeroBox = { x: 0.47, y: 0.2, k: 0.46 };
 const HERO_SHOTS: Shot[] = [
-  shot(0.28, 0.3, 0.55),
-  shot(0.28, 0.42, 0.5),
-  shot(0.32, 0.5, 0.5),
-  shot(0.3, 0.8, 0.55),
-  shot(0.6, 0.5, 0.8),
+  shot(0.4, 0.3, 0.6),
+  shot(0.5, 0.36, 0.55),
+  shot(0.62, 0.44, 0.55),
+  shot(0.42, 0.5, 0.55),
+  shot(0.45, 0.45, 0.75),
 ];
 
 export const heroScript: ScriptLine[] = [
   { text: "{" },
-  { text: '  "url": "/",' },
-  { text: '  "viewport": [1600, 1000],' },
+  { text: '  "url": "localhost:3000/settings",' },
+  { text: '  "viewport": [1280, 800],' },
   { text: '  "steps": [' },
-  { text: '    { "hover": "#wordmark", "zoom": true },', step: 0 },
-  { text: '    { "hover": "h2" },', step: 1 },
-  { text: '    { "click": "[data-testid=copy]" },', step: 2 },
-  { text: '    { "hover": "#takes" },', step: 3 },
-  { text: '    { "click": "#hero", "after": 1400 }', step: 4 },
+  { text: '    { "hover": "h1", "zoom": true },', step: 0 },
+  { text: '    { "type": "#team", "text": "Northwind" },', step: 1 },
+  { text: '    { "click": "#summaries" },', step: 2 },
+  { text: '    { "click": "#save" },', step: 3 },
+  { text: '    { "wait": 1400 }', step: 4 },
   { text: "  ]" },
   { text: "}" },
 ];
 
-let wordmark: Path2D[] | null = null;
-
 export const heroScene: Scene = {
   id: "hero",
   label:
-    "A recording of this page touring itself, then diving into its own hero. Click it, then scroll to scrub.",
+    "A recorded demo of a settings page: the cursor types a team name, flips a toggle and saves. Click it, then scroll to scrub.",
   steps: [
     {
       verb: "hover",
-      at: [0.2, 0.27],
+      at: [0.4, 0.24],
       say: "Have you ever wanted to…",
-      pin: "left-[20%] top-[27%]",
+      pin: "left-[40%] top-[24%]",
     },
     {
-      verb: "hover",
-      at: [0.17, 0.43],
+      verb: "type",
+      at: [0.5, 0.341],
       say: "Make a demo video…",
-      pin: "left-[17%] top-[43%]",
+      pin: "left-[50%] top-[34.1%]",
     },
     {
       verb: "click",
-      at: [0.38, 0.54],
+      at: [0.674, 0.436],
       say: "Where it points at things on your screen…",
-      pin: "left-[38%] top-[54%]",
-    },
-    {
-      verb: "hover",
-      at: [0.18, 0.8],
-      say: "Just like this…",
-      pin: "left-[18%] top-[80%]",
+      pin: "left-[67.4%] top-[43.6%]",
     },
     {
       verb: "click",
-      at: [0.7, 0.43],
+      at: [0.348, 0.525],
+      say: "Just like this…",
+      pin: "left-[34.8%] top-[52.5%]",
+    },
+    {
+      verb: "wait",
+      at: [0.42, 0.525],
       say: "Let's show that again…",
-      pin: "left-[70%] top-[43%]",
+      pin: "left-[42%] top-[52.5%]",
     },
   ],
   period: 5,
-  box: HERO_BOX,
-  still: 0,
+  box: { x: 0, y: 0, k: 1 },
+  still: 4.99,
   frame(t, previous) {
-    // The dive ends with the hero's centre in the middle of the stage, which
-    // is the middle of the page one level up: where the next loop's cursor starts.
-    return tour(this, HERO_SHOTS, t, previous, {
-      shot: {
-        c: [HERO_BOX.x + HERO_BOX.k / 2, HERO_BOX.y + HERO_BOX.k / 2],
-        s: HERO_BOX.k,
-      },
-      focus: 1,
-      from: WIDE.c,
-    });
+    return tour(this, HERO_SHOTS, t, previous);
   },
-  draw(ctx, _t, ms) {
-    wordmark ??= logotypeLines.map((d) => new Path2D(d));
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, SOURCE_W, SOURCE_H);
-    ctx.textBaseline = "alphabetic";
-    ctx.font = `22px ${REGULAR}`;
-    ctx.fillStyle = REC;
-    ctx.textAlign = "left";
-    ctx.fillText("@BUENO-DEV/SCREEN-DEMO", 64, 72);
-    ctx.textAlign = "right";
-    ctx.fillText(`● REC  ${timecode(ms)}`, SOURCE_W - 64, 72);
-    ctx.textAlign = "left";
-
-    ctx.save();
-    ctx.translate(64 - 2 * 1.84, 200);
-    ctx.scale(1.84, 1.84);
-    wordmark.forEach((p) => ctx.fill(p));
-    ctx.restore();
-
-    ctx.font = `36px ${BOLD}`;
-    ctx.fillStyle = REC;
-    ctx.fillText("Demo videos that", 64, 412);
-    ctx.fillText("record themselves.", 64, 454);
-    dotted(ctx, 64, 500, 600, 72, REC60);
-    ctx.font = `22px ${REGULAR}`;
-    ctx.fillText("npm i -D @bueno-dev/screen-demo", 88, 544);
-    ctx.fillRect(560, 514, 88, 44);
-    ctx.fillStyle = "#000";
-    ctx.fillText("COPY", 578, 543);
-
-    ["01 / PROMPT", "02 / CAPTURE", "03 / REVIEW"].forEach((title, i) => {
-      const x = 64 + i * 498;
-      dotted(ctx, x, 730, 474, 200, REC60);
-      ctx.font = `20px ${REGULAR}`;
-      ctx.fillStyle = REC;
-      ctx.fillText(title, x + 24, 772);
-      ctx.fillStyle = REC30;
-      ctx.fillRect(x + 24, 800, 300, 14);
-      ctx.fillRect(x + 24, 828, 220, 14);
+  draw(ctx, t) {
+    const { i, f } = split(t, this.period);
+    drawSettings(ctx, {
+      typed:
+        i < 1
+          ? ""
+          : i === 1
+            ? TEAM.slice(
+                0,
+                Math.round(TEAM.length * clamp((f - 0.4) / 0.4, 0, 1)),
+              )
+            : TEAM,
+      switchOn: reached(t, this.period, 2, CLICK),
+      saved: reached(t, this.period, 3, CLICK),
     });
-
-    // Drawn just outside the box, since everything inside it is replaced.
-    dotted(
-      ctx,
-      HERO_BOX.x * SOURCE_W - 4,
-      HERO_BOX.y * SOURCE_H - 4,
-      HERO_BOX.k * SOURCE_W + 8,
-      HERO_BOX.k * SOURCE_H + 8,
-      REC,
-    );
   },
 };
 
@@ -370,7 +301,7 @@ export const promptScene: Scene = {
     {
       verb: "hover",
       at: [0.3, 0.28],
-      say: "It reads the manual. Unlike some of us.",
+      say: "It reads the manual.",
       pin: "left-[30%] top-[28%]",
     },
     {
@@ -382,7 +313,7 @@ export const promptScene: Scene = {
     {
       verb: "click",
       at: [0.106, 0.79],
-      say: "You say yes. That's the whole job.",
+      say: "You say yes.",
       pin: "left-[10.6%] top-[79%]",
     },
   ],
@@ -404,10 +335,7 @@ export const promptScene: Scene = {
     ctx.fillText(typed + (i === 0 && f < 0.45 ? "▌" : ""), 110, 200);
 
     if (reached(t, this.period, 1, 0.05)) {
-      ctx.fillText("● Reading skills/bueno-screen-demo/SKILL.md", 110, 290);
-      ctx.fillStyle = REC60;
-      ctx.fillText("  Learned: steps, capture, render.", 110, 330);
-      ctx.fillStyle = REC;
+      ctx.fillText("● Reading the skill", 110, 290);
     }
     if (reached(t, this.period, 2, 0.05)) {
       ctx.fillText("● Writing demos/settings.json", 110, 410);
@@ -416,11 +344,7 @@ export const promptScene: Scene = {
       ctx.fillStyle = REC;
     }
     if (reached(t, this.period, 3, 0.05)) {
-      ctx.fillText(
-        "Run npx @bueno-dev/screen-demo capture demos/settings.json?",
-        110,
-        730,
-      );
+      ctx.fillText("Run the capture?", 110, 730);
       const yes = reached(t, this.period, 3, CLICK);
       ctx.fillStyle = yes ? REC : WINDOW;
       ctx.strokeStyle = REC;
@@ -435,7 +359,7 @@ export const promptScene: Scene = {
       ctx.fillText("Yes", 146, 799);
       ctx.fillStyle = REC;
       ctx.fillText("No", 294, 799);
-      if (yes && f > 0.6) ctx.fillText("● Capturing… 1280×800 at 2x", 110, 880);
+      if (yes && f > 0.6) ctx.fillText("● Capturing", 110, 880);
     }
   },
 };
@@ -458,57 +382,72 @@ const CAPTURE_SHOTS: Shot[] = [
 
 type Settings = { typed: string; switchOn: boolean; saved: boolean };
 
-/** The bundled settings example, drawn at 1600x1000 with its card at (450, 180). */
-function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
-  ctx.fillStyle = "#f6f5f1";
-  ctx.fillRect(0, 0, SOURCE_W, SOURCE_H);
-  ctx.save();
-  ctx.shadowColor = "rgba(0, 0, 0, 0.08)";
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = 10;
-  ctx.fillStyle = "#fff";
-  ctx.beginPath();
-  ctx.roundRect(450, 180, 700, 420, 20);
-  ctx.fill();
-  ctx.restore();
+/** The stand-in app's palette: REC outlines over light washes of REC. */
+const APP = {
+  dots: "rgba(255, 59, 47, 0.14)",
+  card: "rgba(255, 59, 47, 0.06)",
+  field: "rgba(255, 59, 47, 0.1)",
+  fill: "rgba(255, 59, 47, 0.2)",
+};
 
+/** An outlined box with a light red wash, the stand-in app's one shape. */
+function slab(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  fill: string,
+) {
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = REC;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+  ctx.fill();
+  ctx.stroke();
+}
+
+/**
+ * The bundled settings example, restyled as a stand-in app in the site's
+ * language: REC outlines and light red washes on black. Drawn at 1600x1000
+ * with its card at (450, 180), so the scenes' targets line up with it.
+ */
+function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, SOURCE_W, SOURCE_H);
+  ctx.fillStyle = APP.dots;
+  for (let x = 20; x < SOURCE_W; x += 40) {
+    for (let y = 20; y < SOURCE_H; y += 40) ctx.fillRect(x, y, 3, 3);
+  }
+
+  slab(ctx, 450, 180, 700, 420, 14, APP.card);
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "#1d1b16";
-  ctx.font = "600 34px system-ui, sans-serif";
-  ctx.fillText("Team settings", 500, 250);
-  ctx.fillStyle = "#6b675e";
-  ctx.font = "18px system-ui, sans-serif";
-  ctx.fillText("Team name", 500, 300);
-  ctx.strokeStyle = "#d9d5ca";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.roundRect(500, 315, 600, 52, 12);
-  ctx.stroke();
-  ctx.fillStyle = "#1d1b16";
-  ctx.font = "20px system-ui, sans-serif";
-  ctx.fillText(state.typed || "Acme", 516, 349);
+  ctx.fillStyle = REC;
+  ctx.font = `40px ${BOLD}`;
+  ctx.fillText("Team settings", 500, 252);
+  ctx.font = `16px ${REGULAR}`;
+  ctx.fillText("T E A M   N A M E", 500, 302);
 
-  ctx.fillText("Email me weekly summaries", 500, 443);
-  ctx.fillStyle = state.switchOn ? "#fa763d" : "#d9d5ca";
+  slab(ctx, 500, 315, 600, 52, 8, APP.field);
+  ctx.fillStyle = REC;
+  ctx.font = `22px ${REGULAR}`;
+  ctx.fillText(state.typed || "Acme", 516, 350);
+
+  ctx.fillText("Email me weekly summaries", 500, 444);
+  slab(ctx, 1050, 420, 58, 32, 16, state.switchOn ? REC : APP.field);
+  ctx.fillStyle = state.switchOn ? "#000" : REC;
   ctx.beginPath();
-  ctx.roundRect(1050, 420, 58, 32, 16);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.beginPath();
-  ctx.arc(state.switchOn ? 1092 : 1066, 436, 12, 0, Math.PI * 2);
+  ctx.arc(state.switchOn ? 1092 : 1066, 436, 10, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "#1d1b16";
-  ctx.beginPath();
-  ctx.roundRect(500, 500, 112, 50, 12);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.fillText("Save", 533, 532);
-  if (state.saved) {
-    ctx.fillStyle = "#2f8a4c";
-    ctx.fillText("Saved", 630, 532);
-  }
+  slab(ctx, 500, 500, 112, 50, 8, APP.fill);
+  ctx.fillStyle = REC;
+  ctx.font = `20px ${BOLD}`;
+  ctx.fillText("SAVE", 528, 533);
+  if (state.saved) ctx.fillText("✓ SAVED", 640, 533);
 }
 
 export const captureScene: Scene = {
@@ -519,19 +458,19 @@ export const captureScene: Scene = {
     {
       verb: "type",
       at: CAPTURE_TARGETS[0],
-      say: "A real browser. Typing for you.",
+      say: "Typing for you.",
       pin: "left-[50%] top-[44.1%]",
     },
     {
       verb: "click",
       at: CAPTURE_TARGETS[1],
-      say: "Clicking things, on purpose.",
+      say: "Clicking, on purpose.",
       pin: "left-[67.4%] top-[53.6%]",
     },
     {
       verb: "click",
       at: CAPTURE_TARGETS[2],
-      say: "Saving. Nobody panic.",
+      say: "Saving.",
       pin: "left-[34.8%] top-[62.5%]",
     },
     {
@@ -573,17 +512,11 @@ export const captureScene: Scene = {
     ctx.font = `24px ${MONO}`;
     ctx.fillStyle = REC;
     const done = reached(t, this.period, 3, 0.3);
-    ctx.fillText(
-      done
-        ? "✓ Wrote out/settings.raw.webm and out/settings.events.json"
-        : `● REC ${timecode(ms)}  capturing at 2x`,
-      110,
-      908,
-    );
+    ctx.fillText(done ? "✓ Saved the take" : `● REC ${timecode(ms)}`, 110, 908);
   },
 };
 
-// ── Take three: reviewing the files, then watching the cut ──
+// ── Take three: reviewing the files ──
 
 const FILES = [
   "settings.json",
@@ -594,41 +527,44 @@ const FILES = [
 ];
 const ROW_Y = 220;
 const ROW_H = 64;
+/** Which file each step hovers. */
+const REVIEW_PICKS = [0, 1, 3, 4];
 const REVIEW_SHOTS: Shot[] = [
   shot(0.5, 0.35, 0.65),
   shot(0.55, 0.38, 0.65),
-  shot(0.42, 0.42, 0.6),
-  shot(0.5, 0.55, 0.8),
+  shot(0.55, 0.42, 0.65),
+  shot(0.55, 0.46, 0.7),
 ];
+const rowCentre = (file: number) => (ROW_Y + file * ROW_H - 12) / SOURCE_H;
 
 export const reviewScene: Scene = {
   id: "review",
   label:
-    "A file window listing the script, the raw take and the finished video, which then opens and plays.",
+    "A file window listing the script, the events, the raw take and the finished video and GIF, each previewed in turn.",
   steps: [
     {
       verb: "hover",
-      at: [0.34, 0.205],
-      say: "The script, kept for next time.",
-      pin: "left-[34%] top-[20.5%]",
+      at: [0.34, rowCentre(0)],
+      say: "The script.",
+      pin: "left-[34%] top-[20.8%]",
     },
     {
       verb: "hover",
-      at: [0.36, 0.269],
-      say: "The raw take. Unedited, unbothered.",
-      pin: "left-[36%] top-[26.9%]",
+      at: [0.36, rowCentre(1)],
+      say: "The raw take.",
+      pin: "left-[36%] top-[27.2%]",
     },
     {
-      verb: "click",
-      at: [0.34, 0.397],
-      say: "The cut. Let's watch it.",
-      pin: "left-[34%] top-[39.7%]",
+      verb: "hover",
+      at: [0.34, rowCentre(3)],
+      say: "The cut.",
+      pin: "left-[34%] top-[40%]",
     },
     {
-      verb: "wait",
-      at: [0.5, 0.79],
-      say: "Popcorn optional.",
-      pin: "left-[50%] top-[79%]",
+      verb: "hover",
+      at: [0.33, rowCentre(4)],
+      say: "A GIF, too.",
+      pin: "left-[33%] top-[46.4%]",
     },
   ],
   period: 4,
@@ -638,30 +574,20 @@ export const reviewScene: Scene = {
     return tour(this, REVIEW_SHOTS, t, previous);
   },
   draw(ctx, t) {
-    const { i, f } = split(t, this.period);
+    const { i } = split(t, this.period);
+    const file = REVIEW_PICKS[i];
     const top = windowChrome(ctx, "acme / out");
     ctx.strokeStyle = REC30;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(360, top);
-    ctx.lineTo(360, SOURCE_H - 60);
     ctx.moveTo(920, top);
     ctx.lineTo(920, SOURCE_H - 60);
     ctx.stroke();
 
-    ctx.font = `20px ${REGULAR}`;
-    ctx.fillStyle = REC60;
-    ctx.fillText("FAVOURITES", 100, 180);
-    ctx.fillStyle = REC;
-    ["acme", "demos", "out", "Desktop"].forEach((name, n) =>
-      ctx.fillText(name, 100, 230 + n * 50),
-    );
-
-    // The row under the cursor: the step's file while it's on screen.
-    const hovered = [0, 1, 3, 3][i];
     ctx.font = `24px ${MONO}`;
     FILES.forEach((name, n) => {
       const y = ROW_Y + n * ROW_H - 40;
-      if (n === hovered) {
+      if (n === file) {
         ctx.fillStyle = REC30;
         ctx.fillRect(380, y, 520, ROW_H - 8);
       }
@@ -674,65 +600,27 @@ export const reviewScene: Scene = {
     // Preview pane.
     ctx.fillStyle = REC;
     ctx.font = `22px ${REGULAR}`;
-    ctx.fillText(FILES[hovered].toUpperCase(), 960, 180);
-    if (hovered === 0) {
+    ctx.fillText(FILES[file].toUpperCase(), 960, 180);
+    if (file === 0) {
       ctx.font = `20px ${MONO}`;
       JSON_LINES.forEach((line, n) =>
         ctx.fillText(line.slice(0, 40), 960, 230 + n * 30),
       );
-    } else {
-      ctx.save();
-      ctx.translate(960, 210);
-      ctx.scale(0.35, 0.35);
-      drawSettings(ctx, { typed: TEAM, switchOn: true, saved: true });
-      ctx.restore();
-      ctx.fillStyle = REC60;
-      ctx.font = `20px ${REGULAR}`;
-      ctx.fillText(
-        hovered === 1 ? "2x, no camera, no cursor" : "1920×1200, eased zoom",
-        960,
-        610,
-      );
+      return;
     }
-
-    // The player, once the cut is opened.
-    if (!reached(t, this.period, 2, CLICK)) return;
-    const open = i === 2 ? ease((f - CLICK) / 0.3) : 1;
-    const play = i === 3 ? f : 0;
-    ctx.save();
-    ctx.globalAlpha = open;
-    ctx.translate(SOURCE_W / 2, SOURCE_H / 2);
-    ctx.scale(lerp(0.85, 1, open), lerp(0.85, 1, open));
-    ctx.translate(-SOURCE_W / 2, -SOURCE_H / 2);
-    ctx.fillStyle = "#000";
-    ctx.strokeStyle = REC;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(280, 150, 1040, 700, 16);
-    ctx.fill();
-    ctx.stroke();
     ctx.save();
     ctx.beginPath();
-    ctx.rect(300, 170, 1000, 580);
+    ctx.rect(960, 210, 560, 350);
     ctx.clip();
-    // The cut zooms toward the toggle as it plays, the way the render does.
-    const z = lerp(0.625, 0.9, swell(play));
-    ctx.translate(800, 460);
-    ctx.scale(z, z);
-    ctx.translate(-800, -420);
-    drawSettings(ctx, {
-      typed: TEAM,
-      switchOn: play > 0.5,
-      saved: false,
-    });
+    ctx.translate(960, 210);
+    // The cut and the GIF are framed closer, the way the render zooms in.
+    const zoom = file === 1 ? 0.35 : 0.5;
+    ctx.scale(zoom, zoom);
+    if (file !== 1) ctx.translate(-380, -200);
+    drawSettings(ctx, { typed: TEAM, switchOn: true, saved: true });
     ctx.restore();
-    ctx.fillStyle = REC30;
-    ctx.fillRect(300, 780, 1000, 8);
-    ctx.fillStyle = REC;
-    ctx.fillRect(300, 780, 1000 * play, 8);
-    ctx.font = `22px ${MONO}`;
-    ctx.fillText("▶ settings.mp4", 300, 828);
-    ctx.restore();
+    ctx.strokeStyle = REC60;
+    ctx.strokeRect(960, 210, 560, 350);
   },
 };
 

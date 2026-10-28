@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://screen-demo.muybuen.dev"),
   title: "Bueno Screen-Demo",
   description:
-    "Product demo videos from a JSON script: a real browser, an eased zoom toward each click and a spring-smoothed cursor.",
+    "Agent-created product demo videos from a JSON script: a real browser, an eased zoom toward each click and a spring-smoothed cursor.",
 };
 
 export default function RootLayout({

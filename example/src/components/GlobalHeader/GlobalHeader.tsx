@@ -86,8 +86,7 @@ export function GlobalHeader() {
             </div>
             <div className="col-span-full">
               <p className="text-body max-w-[15em]">
-                Product demo videos from a JSON script. This page is one of
-                them.
+                Agent-created product demo videos from a JSON script.
               </p>
             </div>
           </motion.div>
