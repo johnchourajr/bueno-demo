@@ -149,13 +149,6 @@ function tour(
   };
 }
 
-function timecode(ms: number) {
-  const frames = Math.floor(ms / (1000 / 30));
-  const s = Math.floor(frames / 30);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(frames % 30)}`;
-}
-
 /** A window with a title bar, filling the frame with a margin. Returns the content top. */
 function windowChrome(ctx: CanvasRenderingContext2D, title: string) {
   ctx.fillStyle = "#000";
@@ -388,20 +381,97 @@ export const promptScene: Scene = {
   },
 };
 
+/**
+ * A Chromium window the way Playwright opens one: a tab, the toolbar and
+ * address bar, and the bar saying automation is driving. Nobody is at the
+ * controls, so there is nothing to stop. The page area starts at PAGE_TOP.
+ */
+function browserChrome(
+  ctx: CanvasRenderingContext2D,
+  tab: string,
+  url: string,
+) {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, SOURCE_W, SOURCE_H);
+  ctx.fillStyle = WINDOW;
+  ctx.strokeStyle = REC60;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(60, 60, SOURCE_W - 120, SOURCE_H - 120, 18);
+  ctx.fill();
+  ctx.stroke();
+  [96, 126, 156].forEach((x) => {
+    ctx.beginPath();
+    ctx.arc(x, 88, 8, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+
+  // The one tab, joined to the toolbar below it.
+  ctx.fillStyle = "#1a0605";
+  ctx.beginPath();
+  ctx.roundRect(200, 70, 340, 46, [12, 12, 0, 0]);
+  ctx.fill();
+  ctx.fillRect(62, 114, SOURCE_W - 124, 58);
+  ctx.fillStyle = REC;
+  ctx.fillRect(222, 85, 16, 16);
+  ctx.font = `20px ${REGULAR}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(tab, 252, 100);
+  ctx.fillStyle = REC60;
+  ctx.fillText("×", 510, 100);
+  ctx.fillText("+", 562, 100);
+
+  // Back, forward, reload and the address bar.
+  ctx.font = `24px ${REGULAR}`;
+  ctx.fillText("←   →   ↻", 96, 152);
+  ctx.fillStyle = APP.field;
+  ctx.beginPath();
+  ctx.roundRect(250, 124, SOURCE_W - 370, 38, 19);
+  ctx.fill();
+  ctx.fillStyle = REC;
+  ctx.font = `20px ${MONO}`;
+  ctx.fillText(url, 280, 150);
+
+  // Chromium's own word that a script is at the wheel.
+  ctx.fillStyle = APP.card;
+  ctx.fillRect(62, 172, SOURCE_W - 124, 42);
+  ctx.fillStyle = REC60;
+  ctx.font = `18px ${REGULAR}`;
+  ctx.fillText(
+    "Chromium is being controlled by automated test software.",
+    96,
+    199,
+  );
+  ctx.fillStyle = REC30;
+  ctx.fillRect(62, PAGE_TOP - 2, SOURCE_W - 124, 2);
+}
+
 // ── Take two: the capture, a real browser driven by the script ──
 
 const TEAM = "Northwind";
-/** Settings-page targets in the capture frame, below the browser toolbar. */
-const CAPTURE_TARGETS: [number, number][] = [
-  [0.5, 0.441],
-  [0.674, 0.536],
-  [0.348, 0.625],
+/** Where the browser's page area starts, and how the app scales into it. */
+const PAGE_TOP = 214;
+const PAGE_SCALE = 0.724;
+const PAGE_LEFT = (SOURCE_W - SOURCE_W * PAGE_SCALE) / 2;
+/** A point in the app's frame, mapped into the browser's page area. */
+const inBrowser = ([u, v]: [number, number]): [number, number] => [
+  (PAGE_LEFT + SOURCE_W * PAGE_SCALE * u) / SOURCE_W,
+  (PAGE_TOP + SOURCE_H * PAGE_SCALE * v) / SOURCE_H,
 ];
+const CAPTURE_TARGETS = (
+  [
+    [0.5, 0.341],
+    [0.674, 0.436],
+    [0.348, 0.525],
+    [0.45, 0.533],
+  ] as [number, number][]
+).map(inBrowser);
 const CAPTURE_SHOTS: Shot[] = [
-  shot(0.5, 0.44, 0.6),
-  shot(0.62, 0.5, 0.6),
+  shot(0.5, 0.46, 0.6),
+  shot(0.6, 0.52, 0.6),
   shot(0.42, 0.58, 0.6),
-  shot(0.4, 0.8, 0.65),
+  shot(0.46, 0.56, 0.75),
 ];
 
 type Settings = { typed: string; switchOn: boolean; saved: boolean };
@@ -601,31 +671,31 @@ function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
 export const captureScene: Scene = {
   id: "capture",
   label:
-    "A browser recording the settings page while the script types, clicks and saves.",
+    "A Chromium window, driven by automation, recording the settings page while the script types, clicks and saves.",
   steps: [
     {
       verb: "type",
       at: CAPTURE_TARGETS[0],
       say: "Typing for you.",
-      pin: "left-[50%] top-[44.1%]",
+      pin: "left-[50%] top-[46.1%]",
     },
     {
       verb: "click",
       at: CAPTURE_TARGETS[1],
       say: "Clicking, on purpose.",
-      pin: "left-[67.4%] top-[53.6%]",
+      pin: "left-[62.6%] top-[53%]",
     },
     {
       verb: "click",
       at: CAPTURE_TARGETS[2],
       say: "Saving.",
-      pin: "left-[34.8%] top-[62.5%]",
+      pin: "left-[39%] top-[59.4%]",
     },
     {
       verb: "wait",
-      at: [0.3, 0.9],
+      at: CAPTURE_TARGETS[3],
       say: "One take. No bloopers.",
-      pin: "left-[30%] top-[90%]",
+      pin: "left-[44.6%] top-[60%]",
     },
   ],
   period: 4,
@@ -634,14 +704,15 @@ export const captureScene: Scene = {
   frame(t, previous) {
     return tour(this, CAPTURE_SHOTS, t, previous);
   },
-  draw(ctx, t, ms) {
+  draw(ctx, t) {
     const { i, f } = split(t, this.period);
-    const top = windowChrome(ctx, "localhost:3000/settings");
+    browserChrome(ctx, "Team settings", "localhost:3000/settings");
     ctx.save();
     ctx.beginPath();
-    ctx.rect(62, top, SOURCE_W - 124, SOURCE_H - 60 - top - 2);
+    ctx.rect(62, PAGE_TOP, SOURCE_W - 124, SOURCE_H - 62 - PAGE_TOP);
     ctx.clip();
-    ctx.translate(0, 100);
+    ctx.translate(PAGE_LEFT, PAGE_TOP);
+    ctx.scale(PAGE_SCALE, PAGE_SCALE);
     drawSettings(ctx, {
       typed:
         i === 0
@@ -654,13 +725,6 @@ export const captureScene: Scene = {
       saved: reached(t, this.period, 2, CLICK),
     });
     ctx.restore();
-
-    ctx.fillStyle = WINDOW;
-    ctx.fillRect(62, 860, SOURCE_W - 124, 78);
-    ctx.font = `24px ${MONO}`;
-    ctx.fillStyle = REC;
-    const done = reached(t, this.period, 3, 0.3);
-    ctx.fillText(done ? "✓ Saved the take" : `● REC ${timecode(ms)}`, 110, 908);
   },
 };
 

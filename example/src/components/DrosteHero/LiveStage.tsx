@@ -26,11 +26,8 @@ type LiveStageProps = {
   paused: boolean;
   onStep?: (step: number) => void;
   testId: string;
-  /**
-   * The step, timeline and mode chips, with what the mode chip says while
-   * paused and while playing. The hero has room for them; the takes go without.
-   */
-  hud?: { paused: string; playing: string };
+  /** The step and timeline chips. The hero has room for them; the takes go without. */
+  hud?: boolean;
   /**
    * Plays sharp and rests in dither: no defocus on camera moves, and the frame
    * falls out of focus while paused. The takes use it; the hero does the reverse.
@@ -43,7 +40,7 @@ export function LiveStage({
   paused,
   onStep,
   testId,
-  hud,
+  hud = false,
   ditherAtRest = false,
 }: LiveStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -51,18 +48,15 @@ export function LiveStage({
   const narratorRef = useRef<HTMLDivElement>(null);
   const rippleRef = useRef<HTMLSpanElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
-  const modeRef = useRef<HTMLSpanElement>(null);
 
   // The frame loop reads these without restarting.
   const sceneRef = useRef(scene);
   const pausedRef = useRef(paused);
   const onStepRef = useRef(onStep);
-  const hudRef = useRef(hud);
   const ditherRef = useRef(ditherAtRest);
   sceneRef.current = scene;
   pausedRef.current = paused;
   onStepRef.current = onStep;
-  hudRef.current = hud;
   ditherRef.current = ditherAtRest;
 
   const [step, setStep] = useState(0);
@@ -182,14 +176,6 @@ export function LiveStage({
         onStepRef.current?.(view.step);
       }
       if (timeRef.current) timeRef.current.textContent = `T ${t.toFixed(2)}`;
-      const hints = hudRef.current;
-      if (modeRef.current && hints) {
-        modeRef.current.textContent = driving
-          ? "You have control"
-          : pausedRef.current
-            ? hints.paused
-            : hints.playing;
-      }
       raf = requestAnimationFrame(frame);
     };
 
@@ -247,7 +233,6 @@ export function LiveStage({
         </div>
       )}
       <div className="absolute bottom-2 left-3 right-3 z-30 flex flex-wrap justify-between gap-2 pointer-events-none">
-        {hud && <span ref={modeRef} className={LABEL} />}
         {/* The narrator's bubble is hidden on phones, so the line shows here. */}
         <span className="md:hidden rounded-sm bg-black px-2 py-1 text-caption text-primary">
           {current.say}

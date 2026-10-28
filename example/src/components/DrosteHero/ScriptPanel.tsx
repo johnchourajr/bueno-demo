@@ -16,9 +16,14 @@ export function ScriptPanel({
   onPick,
 }: ScriptPanelProps) {
   return (
-    <div className="grid gap-2 min-w-0">
-      <span className="text-string text-primary">{file}</span>
-      <div className="overflow-x-auto font-mono text-[0.78rem] leading-[1.6] text-primary">
+    <div className="flex flex-1 flex-col min-w-0">
+      {/* The file as an editor tab, open over the code below it. */}
+      <div className="flex border-b-1 border-primary25 px-4 pt-3">
+        <span className="-mb-px rounded-t-sm border-1 border-b-0 border-primary60 bg-black px-3 py-1.5 font-mono text-caption text-primary">
+          {file}
+        </span>
+      </div>
+      <div className="flex-1 overflow-x-auto p-4 font-mono text-[0.78rem] leading-[1.6] text-primary">
         {script.map((line, i) => {
           const on = line.step !== undefined && line.step === active;
           const className = clsx(

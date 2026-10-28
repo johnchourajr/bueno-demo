@@ -48,16 +48,19 @@ export function DrosteHero() {
               paused={paused || playing !== null}
               onStep={setActive}
               testId="hero-stage"
-              hud={{
-                paused: "Paused / click, then scroll to drive",
-                playing: "Autopilot / click, then scroll to drive",
-              }}
+              hud
             />
           )}
         </div>
 
-        <aside className="col-span-full md:col-span-2 grid content-start gap-5 rounded-md border-1 border-dotted border-primary60 p-4 min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
+        <aside className="col-span-full md:col-span-2 flex flex-col rounded-md border-1 border-dotted border-primary60 min-w-0">
+          <ScriptPanel
+            file="capture.json"
+            script={heroScript}
+            active={active}
+            onPick={reduced ? setActive : undefined}
+          />
+          <div className="flex flex-wrap items-center gap-3 border-t-1 border-dotted border-primary25 p-4">
             {!reduced && (
               <PlayButton
                 playing={!paused}
@@ -81,12 +84,6 @@ export function DrosteHero() {
               {status}
             </span>
           </div>
-          <ScriptPanel
-            file="demos/settings.json"
-            script={heroScript}
-            active={active}
-            onPick={reduced ? setActive : undefined}
-          />
         </aside>
       </section>
 
