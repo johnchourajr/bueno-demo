@@ -160,6 +160,7 @@ function Take({ scene, index, reduced, playing, onPlaying }: TakeProps) {
           scene={scene}
           paused={!playing}
           testId={`take-${scene.id}-stage`}
+          ditherAtRest
         />
       )}
     </div>

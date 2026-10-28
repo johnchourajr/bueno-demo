@@ -15,6 +15,8 @@ const WHEEL_RATE = 0.0016;
 const DRAG_RATE = 0.006;
 /** How long a paused frame takes to come back into focus. */
 const SETTLE_MS = 400;
+/** How far out of focus a resting take sits, in levels. */
+const REST_BLUR = 1;
 
 /** The small all-caps chips over the stage. */
 const LABEL = "rounded-sm bg-black px-2 py-1 text-string text-primary";
@@ -29,6 +31,11 @@ type LiveStageProps = {
    * paused and while playing. The hero has room for them; the takes go without.
    */
   hud?: { paused: string; playing: string };
+  /**
+   * Plays sharp and rests in dither: no defocus on camera moves, and the frame
+   * falls out of focus while paused. The takes use it; the hero does the reverse.
+   */
+  ditherAtRest?: boolean;
 };
 
 export function LiveStage({
@@ -37,6 +44,7 @@ export function LiveStage({
   onStep,
   testId,
   hud,
+  ditherAtRest = false,
 }: LiveStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -50,10 +58,12 @@ export function LiveStage({
   const pausedRef = useRef(paused);
   const onStepRef = useRef(onStep);
   const hudRef = useRef(hud);
+  const ditherRef = useRef(ditherAtRest);
   sceneRef.current = scene;
   pausedRef.current = paused;
   onStepRef.current = onStep;
   hudRef.current = hud;
+  ditherRef.current = ditherAtRest;
 
   const [step, setStep] = useState(0);
 
@@ -73,7 +83,7 @@ export function LiveStage({
     let lastInput = -Infinity;
     let lastStep = -1;
     let drawnT = NaN;
-    /** 1 while the timeline moves; eases to 0 on a hold, pulling a paused frame back into focus. */
+    /** 1 while the timeline moves; eases to 0 on a hold, settling a paused frame in or out of focus. */
     let motion = 1;
     let drawnMotion = NaN;
     const started = performance.now();
@@ -128,7 +138,9 @@ export function LiveStage({
       const held = !driving && pausedRef.current;
       motion = held ? Math.max(0, motion - dt / SETTLE_MS) : 1;
       const view = current.frame(t, before);
-      view.camera.blur *= motion;
+      view.camera.blur = ditherRef.current
+        ? REST_BLUR * (1 - motion)
+        : view.camera.blur * motion;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = Math.round(stage.clientWidth * dpr);
       const h = Math.round(stage.clientHeight * dpr);

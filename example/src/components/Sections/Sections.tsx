@@ -62,10 +62,6 @@ export function Agents() {
           record the take and check every frame before handing it over. Then
           ask: &ldquo;record a demo of the new billing toggle&rdquo;.
         </p>
-        <p className="text-caption text-primary">
-          An agent with this skill could have made the hero above. It
-          didn&rsquo;t, yet.
-        </p>
       </div>
     </SliceWrapper>
   );

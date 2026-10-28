@@ -185,14 +185,26 @@ function windowChrome(ctx: CanvasRenderingContext2D, title: string) {
   return 124;
 }
 
+/**
+ * The latest-demo thumbnail in the app's corner card. It keeps the frame's
+ * aspect, so the hero can recurse into it: the thumbnail is this app again.
+ */
+const DEMO_BOX: HeroBox = { x: 1215 / SOURCE_W, y: 0.2, k: 0.2 };
+
 // ── Hero: the settings example, played the way the CLI records it ──
+//
+// The camera tours the form one step at a time while the cursor stays on the
+// outer layer. The last step clicks the latest-demo thumbnail, which restarts
+// the demo, and dives into it, racking focus onto the copy inside. That copy
+// is the app again at full size, so the loop restarts on exactly the frame
+// the dive ends on.
 
 const HERO_SHOTS: Shot[] = [
   shot(0.4, 0.3, 0.6),
   shot(0.5, 0.36, 0.55),
   shot(0.62, 0.44, 0.55),
   shot(0.42, 0.5, 0.55),
-  shot(0.45, 0.45, 0.75),
+  shot(0.78, 0.32, 0.5),
 ];
 
 export const heroScript: ScriptLine[] = [
@@ -204,7 +216,7 @@ export const heroScript: ScriptLine[] = [
   { text: '    { "type": "#team", "text": "Northwind" },', step: 1 },
   { text: '    { "click": "#summaries" },', step: 2 },
   { text: '    { "click": "#save" },', step: 3 },
-  { text: '    { "wait": 1400 }', step: 4 },
+  { text: '    { "click": "#latest-demo", "after": 1400 }', step: 4 },
   { text: "  ]" },
   { text: "}" },
 ];
@@ -239,23 +251,35 @@ export const heroScene: Scene = {
       pin: "left-[34.8%] top-[52.5%]",
     },
     {
-      verb: "wait",
-      at: [0.42, 0.525],
+      verb: "click",
+      at: [DEMO_BOX.x + DEMO_BOX.k / 2, DEMO_BOX.y + DEMO_BOX.k / 2],
       say: "Let's show that again…",
-      pin: "left-[42%] top-[52.5%]",
+      pin: "left-[85.9%] top-[30%]",
     },
   ],
   period: 5,
-  box: { x: 0, y: 0, k: 1 },
-  still: 4.99,
+  box: DEMO_BOX,
+  still: 4.4,
   frame(t, previous) {
-    return tour(this, HERO_SHOTS, t, previous);
+    // The dive ends with the thumbnail's centre in the middle of the stage,
+    // which is the middle of the app one level up: where the next loop's cursor starts.
+    return tour(this, HERO_SHOTS, t, previous, {
+      shot: {
+        c: [DEMO_BOX.x + DEMO_BOX.k / 2, DEMO_BOX.y + DEMO_BOX.k / 2],
+        s: DEMO_BOX.k,
+      },
+      focus: 1,
+      from: WIDE.c,
+    });
   },
   draw(ctx, t) {
     const { i, f } = split(t, this.period);
+    // Clicking the thumbnail restarts the demo, so every level shows the
+    // opening state through the dive and the loop's first frame matches.
+    const restarted = reached(t, this.period, 4, CLICK);
     drawSettings(ctx, {
       typed:
-        i < 1
+        i < 1 || restarted
           ? ""
           : i === 1
             ? TEAM.slice(
@@ -263,8 +287,8 @@ export const heroScene: Scene = {
                 Math.round(TEAM.length * clamp((f - 0.4) / 0.4, 0, 1)),
               )
             : TEAM,
-      switchOn: reached(t, this.period, 2, CLICK),
-      saved: reached(t, this.period, 3, CLICK),
+      switchOn: reached(t, this.period, 2, CLICK) && !restarted,
+      saved: reached(t, this.period, 3, CLICK) && !restarted,
     });
   },
 };
@@ -409,6 +433,129 @@ function slab(
   ctx.stroke();
 }
 
+/** Where the shell's sidebar ends and its top bar ends. */
+const SIDEBAR_W = 300;
+const TOPBAR_H = 90;
+
+/**
+ * Everything around the form that makes it read as an app: a sidebar with
+ * the workspace, nav and user, a top bar with breadcrumbs and search, tabs, a
+ * plan card and the members list. The form itself stays where the scenes aim.
+ */
+function drawShell(ctx: CanvasRenderingContext2D) {
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+
+  // Sidebar.
+  ctx.fillStyle = APP.card;
+  ctx.fillRect(0, 0, SIDEBAR_W, SOURCE_H);
+  ctx.fillStyle = REC30;
+  ctx.fillRect(SIDEBAR_W - 2, 0, 2, SOURCE_H);
+  ctx.fillStyle = REC;
+  ctx.beginPath();
+  ctx.roundRect(40, 30, 36, 36, 8);
+  ctx.fill();
+  ctx.font = `26px ${BOLD}`;
+  ctx.fillText("Acme", 92, 58);
+  ["Overview", "Projects", "Reports", "Team", "Settings"].forEach((item, n) => {
+    const y = 130 + n * 58;
+    if (item === "Settings") slab(ctx, 24, y - 8, 252, 48, 8, APP.field);
+    ctx.strokeStyle = item === "Settings" ? REC : REC60;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(46, y + 6, 18, 18);
+    ctx.fillStyle = item === "Settings" ? REC : REC60;
+    ctx.font = `20px ${REGULAR}`;
+    ctx.fillText(item, 82, y + 23);
+  });
+  ctx.fillStyle = APP.fill;
+  ctx.beginPath();
+  ctx.arc(60, SOURCE_H - 60, 20, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = REC;
+  ctx.font = `18px ${REGULAR}`;
+  ctx.fillText("Jo Rivera", 94, SOURCE_H - 54);
+
+  // Top bar.
+  ctx.fillStyle = REC30;
+  ctx.fillRect(SIDEBAR_W, TOPBAR_H - 2, SOURCE_W - SIDEBAR_W, 2);
+  ctx.fillStyle = REC60;
+  ctx.font = `18px ${REGULAR}`;
+  ctx.fillText("Acme  /  Settings  /", 340, 52);
+  ctx.fillStyle = REC;
+  ctx.fillText("General", 518, 52);
+  slab(ctx, 1080, 24, 360, 42, 21, APP.field);
+  ctx.fillStyle = REC60;
+  ctx.fillText("Search   ⌘K", 1110, 51);
+  ctx.fillStyle = APP.fill;
+  ctx.strokeStyle = REC;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(1520, 45, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Tabs over the form.
+  ["General", "Members", "Billing", "API"].forEach((tab, n) => {
+    const x = 450 + n * 130;
+    ctx.fillStyle = n === 0 ? REC : REC60;
+    ctx.font = `18px ${REGULAR}`;
+    ctx.fillText(tab, x, 150);
+    if (n === 0) ctx.fillRect(x, 160, 78, 3);
+  });
+
+  // The latest demo, whose thumbnail is a recording of this app. The hero
+  // recurses into it; the takes, which don't, show a play button there.
+  slab(ctx, 1190, 130, 370, 320, 14, APP.card);
+  ctx.fillStyle = REC;
+  ctx.font = `22px ${BOLD}`;
+  ctx.fillText("Latest demo", 1215, 172);
+  const bx = DEMO_BOX.x * SOURCE_W;
+  const by = DEMO_BOX.y * SOURCE_H;
+  const bw = DEMO_BOX.k * SOURCE_W;
+  const bh = DEMO_BOX.k * SOURCE_H;
+  ctx.fillStyle = APP.field;
+  ctx.fillRect(bx, by, bw, bh);
+  ctx.fillStyle = REC;
+  ctx.beginPath();
+  ctx.moveTo(bx + bw / 2 - 14, by + bh / 2 - 18);
+  ctx.lineTo(bx + bw / 2 + 18, by + bh / 2);
+  ctx.lineTo(bx + bw / 2 - 14, by + bh / 2 + 18);
+  ctx.fill();
+  // Drawn just outside the box, since in the hero everything inside it is replaced.
+  ctx.strokeStyle = REC;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(bx - 3, by - 3, bw + 6, bh + 6);
+  ctx.fillStyle = REC60;
+  ctx.font = `16px ${REGULAR}`;
+  ctx.fillText("settings.mp4  0:14", 1215, 436);
+
+  // Members list under the form.
+  slab(ctx, 450, 640, 1110, 280, 14, APP.card);
+  ctx.fillStyle = REC;
+  ctx.font = `24px ${BOLD}`;
+  ctx.fillText("Members", 490, 690);
+  [
+    ["Jo Rivera", "Owner"],
+    ["Sam Okafor", "Admin"],
+    ["Priya Nair", "Member"],
+  ].forEach(([name, role], n) => {
+    const y = 740 + n * 58;
+    ctx.fillStyle = APP.fill;
+    ctx.beginPath();
+    ctx.arc(510, y + 14, 18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = REC;
+    ctx.font = `20px ${REGULAR}`;
+    ctx.fillText(name, 546, y + 21);
+    ctx.fillStyle = REC60;
+    ctx.fillText(role, 1400, y + 21);
+    if (n < 2) {
+      ctx.fillStyle = APP.field;
+      ctx.fillRect(490, y + 42, 1030, 2);
+    }
+  });
+}
+
 /**
  * The bundled settings example, restyled as a stand-in app in the site's
  * language: REC outlines and light red washes on black. Drawn at 1600x1000
@@ -418,9 +565,10 @@ function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, SOURCE_W, SOURCE_H);
   ctx.fillStyle = APP.dots;
-  for (let x = 20; x < SOURCE_W; x += 40) {
-    for (let y = 20; y < SOURCE_H; y += 40) ctx.fillRect(x, y, 3, 3);
+  for (let x = 320; x < SOURCE_W; x += 40) {
+    for (let y = 110; y < SOURCE_H; y += 40) ctx.fillRect(x, y, 3, 3);
   }
+  drawShell(ctx);
 
   slab(ctx, 450, 180, 700, 420, 14, APP.card);
   ctx.textAlign = "left";
