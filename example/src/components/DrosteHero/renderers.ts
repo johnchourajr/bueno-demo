@@ -1,6 +1,9 @@
 // Three ways to draw the same picture: the source frame seen through a camera,
 // optionally recursed into the hero box. Tried in this order; the first that
 // starts wins. All share one camera model so overlays can project through it.
+// The GPU renderers also have a focal plane: each nesting level is one unit of
+// depth, and anything off the plane breaks up into an ordered dither rather
+// than a soft blur. Canvas 2D skips the focus and draws everything sharp.
 
 export type Camera = {
   /** Centre of the view, in source-frame UV (0 to 1, y down). */
@@ -10,6 +13,10 @@ export type Camera = {
   s: number;
   /** How many times to recurse into the hero box. 0 draws the frame once. */
   depth: number;
+  /** The nesting level in focus. 0 is the outer frame, 1 the page inside the hero box. */
+  focus: number;
+  /** Extra defocus for the whole frame, in levels. The camera adds some while it travels. */
+  blur: number;
 };
 
 export type HeroBox = {
@@ -28,8 +35,10 @@ export type Renderer = {
 
 const MAX_DEPTH = 12;
 
+// Defocus in levels: under 0.08 is sharp, from there the dither fades in, and
+// its cells grow from one to four CSS pixels as the distance reaches two levels.
 const WGSL = /* wgsl */ `
-struct U { c: vec2f, s: f32, depth: f32, r0: vec2f, k: f32, pad: f32, res: vec2f, pad2: vec2f };
+struct U { c: vec2f, s: f32, depth: f32, r0: vec2f, k: f32, focus: f32, res: vec2f, blur: f32, px: f32 };
 @group(0) @binding(0) var samp: sampler;
 @group(0) @binding(1) var tex: texture_2d<f32>;
 @group(0) @binding(2) var<uniform> u: U;
@@ -39,14 +48,48 @@ struct U { c: vec2f, s: f32, depth: f32, r0: vec2f, k: f32, pad: f32, res: vec2f
   return vec4f(p[i], 0.0, 1.0);
 }
 
-@fragment fn fs(@builtin(position) pos: vec4f) -> @location(0) vec4f {
-  var p = u.c + (pos.xy / u.res - 0.5) * u.s;
+// Frame UV in xy, nesting level in z.
+fn look(pos: vec2f) -> vec3f {
+  var p = u.c + (pos / u.res - 0.5) * u.s;
+  var n = 0.0;
   for (var i = 0; i < ${MAX_DEPTH}; i++) {
     if (f32(i) >= u.depth) { break; }
     let d = (p - u.r0) / u.k;
-    if (all(d >= vec2f(0.0)) && all(d <= vec2f(1.0))) { p = d; } else { break; }
+    if (all(d >= vec2f(0.0)) && all(d <= vec2f(1.0))) { p = d; n += 1.0; } else { break; }
   }
-  return vec4f(textureSampleLevel(tex, samp, p, 0.0).rgb, 1.0);
+  return vec3f(p, n);
+}
+
+fn tap(pos: vec2f) -> vec3f {
+  return textureSampleLevel(tex, samp, look(pos).xy, 0.0).rgb;
+}
+
+fn bayer2(x: u32, y: u32) -> u32 { return ((x ^ y) & 1u) * 2u + (y & 1u); }
+
+@fragment fn fs(@builtin(position) pos: vec4f) -> @location(0) vec4f {
+  let here = look(pos.xy);
+  let sharp = textureSampleLevel(tex, samp, here.xy, 0.0).rgb;
+  let dz = min(abs(here.z - u.focus) + u.blur, 2.0);
+  let amount = smoothstep(0.08, 0.4, dz);
+  if (amount <= 0.0) { return vec4f(sharp, 1.0); }
+  let cell = (1.0 + floor(dz * 1.5)) * u.px;
+  let id = floor(pos.xy / cell);
+  let q = (id + 0.5) * cell;
+  // Spread before dithering so edges bloom into stippled halos, wider the further off the plane.
+  let r = dz * 4.0 * u.px;
+  var soft = tap(q);
+  for (var i = 0; i < 8; i++) {
+    let a = f32(i) * 0.785398;
+    soft += tap(q + vec2f(cos(a), sin(a)) * r);
+  }
+  soft /= 9.0;
+  let x = u32(id.x);
+  let y = u32(id.y);
+  let threshold = (f32(bayer2(x, y) * 4u + bayer2(x >> 1u, y >> 1u)) + 0.5) / 16.0;
+  // One bit per pixel, keeping each colour's hue: lit at full brightness or off.
+  let m = max(soft.r, max(soft.g, soft.b));
+  let lit = select(vec3f(0.0), soft / max(m, 0.001), m > threshold);
+  return vec4f(mix(sharp, lit, amount), 1.0);
 }
 `;
 
@@ -62,17 +105,55 @@ uniform float s;
 uniform float depth;
 uniform vec2 r0;
 uniform float k;
+uniform float focus;
+uniform float blur;
+uniform float px;
 uniform vec2 res;
 out vec4 o;
-void main() {
-  vec2 p = c + (vec2(gl_FragCoord.x, res.y - gl_FragCoord.y) / res - 0.5) * s;
+
+vec3 look(vec2 pos) {
+  vec2 p = c + (pos / res - 0.5) * s;
+  float n = 0.0;
   for (int i = 0; i < ${MAX_DEPTH}; i++) {
     if (float(i) >= depth) break;
     vec2 d = (p - r0) / k;
-    if (all(greaterThanEqual(d, vec2(0.0))) && all(lessThanEqual(d, vec2(1.0)))) { p = d; } else { break; }
+    if (all(greaterThanEqual(d, vec2(0.0))) && all(lessThanEqual(d, vec2(1.0)))) { p = d; n += 1.0; } else { break; }
   }
-  o = vec4(texture(tex, p).rgb, 1.0);
+  return vec3(p, n);
+}
+
+vec3 tap(vec2 pos) { return texture(tex, look(pos).xy).rgb; }
+
+int bayer2(int x, int y) { return ((x ^ y) & 1) * 2 + (y & 1); }
+
+void main() {
+  vec2 pos = vec2(gl_FragCoord.x, res.y - gl_FragCoord.y);
+  vec3 here = look(pos);
+  vec3 sharp = texture(tex, here.xy).rgb;
+  float dz = min(abs(here.z - focus) + blur, 2.0);
+  float amount = smoothstep(0.08, 0.4, dz);
+  if (amount <= 0.0) { o = vec4(sharp, 1.0); return; }
+  float cell = (1.0 + floor(dz * 1.5)) * px;
+  vec2 id = floor(pos / cell);
+  vec2 q = (id + 0.5) * cell;
+  float r = dz * 4.0 * px;
+  vec3 soft = tap(q);
+  for (int i = 0; i < 8; i++) {
+    float a = float(i) * 0.785398;
+    soft += tap(q + vec2(cos(a), sin(a)) * r);
+  }
+  soft /= 9.0;
+  int x = int(id.x);
+  int y = int(id.y);
+  float threshold = (float(bayer2(x, y) * 4 + bayer2(x >> 1, y >> 1)) + 0.5) / 16.0;
+  float m = max(soft.r, max(soft.g, soft.b));
+  vec3 lit = m > threshold ? soft / max(m, 0.001) : vec3(0.0);
+  o = vec4(mix(sharp, lit, amount), 1.0);
 }`;
+
+/** Device pixels per CSS pixel, so dither cells stay the same size on any screen. */
+const pixelRatio = (canvas: HTMLCanvasElement) =>
+  canvas.width / Math.max(1, canvas.clientWidth);
 
 async function webgpu(canvas: HTMLCanvasElement): Promise<Renderer | null> {
   if (!("gpu" in navigator)) return null;
@@ -144,11 +225,11 @@ async function webgpu(canvas: HTMLCanvasElement): Promise<Renderer | null> {
           box.x,
           box.y,
           box.k,
-          0,
+          cam.focus,
           canvas.width,
           canvas.height,
-          0,
-          0,
+          cam.blur,
+          pixelRatio(canvas),
         ]),
       );
       const encoder = device.createCommandEncoder();
@@ -219,6 +300,9 @@ function webgl2(canvas: HTMLCanvasElement): Renderer | null {
     depth: at("depth"),
     r0: at("r0"),
     k: at("k"),
+    focus: at("focus"),
+    blur: at("blur"),
+    px: at("px"),
     res: at("res"),
   };
 
@@ -239,6 +323,9 @@ function webgl2(canvas: HTMLCanvasElement): Renderer | null {
       gl.uniform1f(loc.depth, cam.depth);
       gl.uniform2f(loc.r0, box.x, box.y);
       gl.uniform1f(loc.k, box.k);
+      gl.uniform1f(loc.focus, cam.focus);
+      gl.uniform1f(loc.blur, cam.blur);
+      gl.uniform1f(loc.px, pixelRatio(canvas));
       gl.uniform2f(loc.res, canvas.width, canvas.height);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     },

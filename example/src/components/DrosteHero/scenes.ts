@@ -43,14 +43,44 @@ export type Scene = {
 
 const REC = "#ff3b2f";
 const REC60 = "rgba(255, 59, 47, 0.6)";
-const PAPER = "#f3ebe6";
 const BOLD = "GoshaSans-Ultrabold, sans-serif";
 const REGULAR = "GoshaSans-Regular, sans-serif";
 
-const ease = (x: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
-const lerp = (a: number, b: number, x: number) => a + (b - a) * x;
 const clamp = (v: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, v));
+const ease = (x: number) => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+const easeInOut = (x: number) => {
+  const v = clamp(x, 0, 1);
+  return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(2 - 2 * v, 3) / 2;
+};
+const lerp = (a: number, b: number, x: number) => a + (b - a) * x;
+/** Rises from 0 to 1 and back over x in 0 to 1: how far through a move the camera is. */
+const swell = (x: number) => Math.sin(Math.PI * clamp(x, 0, 1));
+/** Where t sits in the loop: step index and how far through it. */
+const split = (t: number, period: number) => {
+  const local = ((t % period) + period) % period;
+  const i = Math.floor(local);
+  return { i, f: local - i };
+};
+/** True when the playhead moved forward across `at` within one step. */
+const crossed = (t: number, previous: number, at: number) =>
+  Math.floor(t) === Math.floor(previous) &&
+  t - Math.floor(t) >= at &&
+  previous - Math.floor(previous) < at;
+
+/** How much the frame defocuses at the middle of a camera move, in levels. */
+const TRAVEL_BLUR = 0.7;
+
+type Shot = { c: [number, number]; s: number };
+
+/** Eases from one shot to another, scaling geometrically so the zoom rate feels even. */
+function between(a: Shot, b: Shot, x: number): Shot {
+  const e = easeInOut(x);
+  return {
+    c: [lerp(a.c[0], b.c[0], e), lerp(a.c[1], b.c[1], e)],
+    s: a.s * Math.pow(b.s / a.s, e),
+  };
+}
 
 function timecode(ms: number) {
   const frames = Math.floor(ms / (1000 / 30));
@@ -75,12 +105,29 @@ function dotted(
   ctx.restore();
 }
 
-// ── Meta: the page, recursing into its own hero ──
+// ── Meta: the page, holding a recording of itself ──
+//
+// The camera tours the page one step at a time while the cursor stays on the
+// outer layer. The last step dives into the hero box, racking focus onto the
+// copy inside. That copy is the page again at full size, so the loop restarts
+// on exactly the frame the dive ends on.
 
 const META_BOX: HeroBox = { x: 0.47, y: 0.2, k: 0.46 };
-// The map into the box has one fixed point. Zooming around it by exactly one
-// box per step lands each level on the next, so the loop never seams.
-const FIXED = [META_BOX.x / (1 - META_BOX.k), META_BOX.y / (1 - META_BOX.k)];
+const WIDE: Shot = { c: [0.5, 0.5], s: 1 };
+const META_SHOTS: Shot[] = [
+  { c: [0.28, 0.3], s: 0.55 },
+  { c: [0.32, 0.5], s: 0.5 },
+  { c: [0.3, 0.725], s: 0.55 },
+  { c: [0.6, 0.5], s: 0.8 },
+];
+const INSIDE: Shot = {
+  c: [META_BOX.x + META_BOX.k / 2, META_BOX.y + META_BOX.k / 2],
+  s: META_BOX.k,
+};
+/** Each step's camera move and cursor move finish by these points in the step. */
+const MOVE = 0.45;
+const CLICK = 0.5;
+const DIVE = 0.55;
 
 let wordmark: Path2D[] | null = null;
 
@@ -128,23 +175,37 @@ export const metaScene: Scene = {
   period: 4,
   box: META_BOX,
   frame(t, previous) {
-    const f = t - Math.floor(t);
-    const s = Math.pow(META_BOX.k, f);
-    const step = Math.floor(t) % this.steps.length;
+    const { i, f } = split(t, this.period);
+    let shot = between(
+      i === 0 ? WIDE : META_SHOTS[i - 1],
+      META_SHOTS[i],
+      f / MOVE,
+    );
+    let focus = 0;
+    let blur = TRAVEL_BLUR * swell(f / MOVE);
+    if (i === 3 && f > DIVE) {
+      const dive = (f - DIVE) / (1 - DIVE);
+      shot = between(META_SHOTS[3], INSIDE, dive);
+      focus = easeInOut(dive);
+      blur = 0;
+    }
+    // The dive ends with the hero's centre in the middle of the stage, which is
+    // where the cursor starts the next loop.
+    const from = i === 0 ? WIDE.c : this.steps[i - 1].at;
+    const to = this.steps[i].at;
+    const move = ease(f / (MOVE - 0.05));
     return {
       camera: {
-        cx: FIXED[0] + (0.5 - FIXED[0]) * s,
-        cy: FIXED[1] + (0.5 - FIXED[1]) * s,
-        s,
-        depth: 12,
+        cx: shot.c[0],
+        cy: shot.c[1],
+        s: shot.s,
+        depth: 6,
+        focus,
+        blur,
       },
-      step,
-      cursor: this.steps[step].at,
-      clicked:
-        this.steps[step].verb === "click" &&
-        Math.floor(t) === Math.floor(previous) &&
-        f >= 0.3 &&
-        previous - Math.floor(previous) < 0.3,
+      step: i,
+      cursor: [lerp(from[0], to[0], move), lerp(from[1], to[1], move)],
+      clicked: this.steps[i].verb === "click" && crossed(t, previous, CLICK),
     };
   },
   draw(ctx, _t, ms) {
@@ -167,7 +228,7 @@ export const metaScene: Scene = {
     ctx.restore();
 
     ctx.font = `36px ${BOLD}`;
-    ctx.fillStyle = PAPER;
+    ctx.fillStyle = REC;
     ctx.fillText("Demo videos that", 64, 412);
     ctx.fillText("record themselves.", 64, 454);
     dotted(ctx, 64, 500, 600, 72, REC60);
@@ -182,9 +243,9 @@ export const metaScene: Scene = {
       const x = 64 + i * 498;
       dotted(ctx, x, 730, 474, 200, REC60);
       ctx.font = `20px ${REGULAR}`;
-      ctx.fillStyle = REC60;
+      ctx.fillStyle = REC;
       ctx.fillText(title, x + 24, 772);
-      ctx.fillStyle = "rgba(243, 235, 230, 0.14)";
+      ctx.fillStyle = "rgba(255, 59, 47, 0.3)";
       ctx.fillRect(x + 24, 800, 300, 14);
       ctx.fillRect(x + 24, 828, 220, 14);
     });
@@ -213,9 +274,7 @@ const PLAIN_TARGETS: [number, number][] = [
 const TEAM = "Northwind";
 
 function plainState(t: number) {
-  const local = ((t % 4) + 4) % 4;
-  const i = Math.floor(local);
-  const f = local - i;
+  const { i, f } = split(t, 4);
   return {
     i,
     f,
@@ -287,17 +346,18 @@ export const plainScene: Scene = {
           ? lerp(PLAIN_ZOOM, 1, ease((f - 0.2) / 0.5))
           : PLAIN_ZOOM;
     const s = 1 / zoom;
-    const prev = plainState(previous);
     return {
       camera: {
         cx: clamp(cursor[0], s / 2, 1 - s / 2),
         cy: clamp(cursor[1], s / 2, 1 - s / 2),
         s,
         depth: 0,
+        focus: 0,
+        blur: TRAVEL_BLUR * swell(i === 3 ? (f - 0.2) / 0.5 : f / 0.35),
       },
       step: i,
       cursor,
-      clicked: (i === 1 || i === 2) && prev.i === i && f >= 0.4 && prev.f < 0.4,
+      clicked: (i === 1 || i === 2) && crossed(t, previous, 0.4),
     };
   },
   draw(ctx, t) {
@@ -356,24 +416,13 @@ export const plainScene: Scene = {
 
 export const scenes = { meta: metaScene, plain: plainScene };
 
-/** Projects a source-frame point to the stage, picking the nesting level that is on screen. */
+/** Projects a point on the outer layer of the source frame to the stage, in 0 to 1. */
 export function project(
-  scene: Scene,
   point: [number, number],
   camera: Camera,
 ): [number, number] {
-  const { x, y, k } = scene.box;
-  let px = point[0];
-  let py = point[1];
-  const levels = scene.id === "meta" ? 3 : 1;
-  let fallback: [number, number] | null = null;
-  for (let n = 0; n < levels; n++) {
-    const sx = (px - camera.cx) / camera.s + 0.5;
-    const sy = (py - camera.cy) / camera.s + 0.5;
-    fallback ??= [sx, sy];
-    if (sx > 0.03 && sx < 0.86 && sy > 0.05 && sy < 0.92) return [sx, sy];
-    px = x + k * px;
-    py = y + k * py;
-  }
-  return [clamp(fallback![0], 0.03, 0.86), clamp(fallback![1], 0.05, 0.92)];
+  return [
+    (point[0] - camera.cx) / camera.s + 0.5,
+    (point[1] - camera.cy) / camera.s + 0.5,
+  ];
 }

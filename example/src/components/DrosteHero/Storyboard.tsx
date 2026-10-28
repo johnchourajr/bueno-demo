@@ -37,7 +37,14 @@ export function Storyboard({ scene, active, onPick }: StoryboardProps) {
       scene.draw(ctx, scene.id === "plain" ? scene.period - 0.01 : 0, 0);
       renderer.draw(
         source,
-        { cx: 0.5, cy: 0.5, s: 1, depth: scene.id === "meta" ? 8 : 0 },
+        {
+          cx: 0.5,
+          cy: 0.5,
+          s: 1,
+          depth: scene.id === "meta" ? 8 : 0,
+          focus: 0,
+          blur: 0,
+        },
         scene.box,
       );
     };
@@ -81,10 +88,10 @@ export function Storyboard({ scene, active, onPick }: StoryboardProps) {
         </button>
       ))}
       <div className="absolute bottom-2 left-3 right-3 z-10 flex flex-wrap justify-between gap-2">
-        <span className="rounded-sm bg-black px-2 py-1 text-caption md:text-string text-primary uppercase tracking-[0.12em]">
+        <span className="rounded-sm bg-black px-2 py-1 text-string text-primary">
           Storyboard / motion is reduced
         </span>
-        <span className="rounded-sm bg-black px-2 py-1 text-caption text-paper">
+        <span className="rounded-sm bg-black px-2 py-1 text-caption text-primary">
           {active + 1}. {scene.steps[active].say}
         </span>
       </div>

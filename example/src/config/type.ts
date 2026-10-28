@@ -12,8 +12,8 @@ export const customTexts: Record<
   },
   string: {
     fontWeight: "normal",
-    fontSize: "1rem",
-    letterSpacing: ".12em",
+    fontSize: ".75rem",
+    letterSpacing: ".14em",
     lineHeight: 1.25,
     textTransform: "uppercase",
   },

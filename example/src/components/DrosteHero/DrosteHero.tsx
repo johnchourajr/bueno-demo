@@ -79,12 +79,12 @@ export function DrosteHero() {
           onPick={reduced ? setActive : undefined}
         />
 
-        <p className="text-body text-paper60">
+        <p className="text-body text-primary">
           {meta
-            ? "This hero zooms into a recording of this page, which holds this hero. Each level is one step of the script beside it."
+            ? "A recording of this page, which holds this hero. The camera tours one script step at a time while the cursor stays on top. The last step dives into the hero and racks focus, and whatever sits off the focal plane falls apart into dither."
             : "The settings example that ships with the package, played the way the CLI records it: eased zoom toward each click, a spring-smoothed cursor."}
         </p>
-        <p className="text-caption text-primary60">
+        <p className="text-caption text-primary">
           {reduced
             ? "Your system asks for reduced motion, so this is a still storyboard. Point at a step to find it."
             : "Click the hero, then scroll (or drag sideways) to drive. Stop for a moment and autopilot picks up again."}

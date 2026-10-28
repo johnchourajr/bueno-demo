@@ -1,17 +1,21 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { Narrator } from "./Narrator";
 import { startRenderer, type Renderer } from "./renderers";
 import { project, SOURCE_H, SOURCE_W, type Scene } from "./scenes";
 
-/** Autopilot speed: one step, which in the meta scene is one level of the zoom. */
+/** Autopilot speed: one script step. */
 const STEP_MS = 3600;
 /** How long after the last scroll or drag autopilot waits before taking over again. */
 const IDLE_MS = 2500;
 /** Steps per pixel of wheel delta, and per pixel of horizontal drag. */
 const WHEEL_RATE = 0.0016;
 const DRAG_RATE = 0.006;
+
+/** The small all-caps chips over the stage. */
+const LABEL = "rounded-sm bg-black px-2 py-1 text-string text-primary";
 
 type LiveStageProps = {
   scene: Scene;
@@ -35,9 +39,6 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
   pausedRef.current = paused;
   onStepRef.current = onStep;
 
-  const [rendererName, setRendererName] = useState<Renderer["name"] | null>(
-    null,
-  );
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -59,10 +60,10 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
     const started = performance.now();
 
     const nudge = (delta: number) => {
-      t = sceneRef.current.id === "meta" ? Math.max(0, t + delta) : t + delta;
+      t += delta;
       lastInput = performance.now();
     };
-    // The wheel only drives the zoom after a click on the stage, so scrolling
+    // The wheel only drives the timeline after a click on the stage, so scrolling
     // past the hero still scrolls the page.
     let engaged = false;
     const onWheel = (e: WheelEvent) => {
@@ -122,7 +123,7 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
       }
       renderer.draw(source, view.camera, current.box);
 
-      const [sx, sy] = project(current, view.cursor, view.camera);
+      const [sx, sy] = project(view.cursor, view.camera);
       const px = sx * stage.clientWidth;
       const py = sy * stage.clientHeight;
       narratorRef.current!.style.transform = `translate(${px}px, ${py}px)`;
@@ -156,7 +157,6 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
         }
         renderer = started.renderer;
         canvas = started.canvas;
-        setRendererName(renderer.name);
         raf = requestAnimationFrame(frame);
       });
 
@@ -181,7 +181,7 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
       data-testid="hero-stage"
       aria-label={
         scene.id === "meta"
-          ? "This page, zooming into a recording of itself. Click it, then scroll to control the zoom."
+          ? "A recording of this page touring itself, then diving into its own hero. Click it, then scroll to scrub."
           : "A recorded demo of a settings page. Click it, then scroll to scrub."
       }
       className="relative aspect-[16/10] w-full touch-pan-y overflow-hidden rounded-md border-1 border-primary60 bg-black cursor-pointer select-none"
@@ -197,27 +197,19 @@ export function LiveStage({ scene, paused, onStep }: LiveStageProps) {
         say={scene.id === "meta" ? current.say : null}
       />
 
-      <div className="absolute left-3 top-2 z-30 pointer-events-none">
-        <span className="rounded-sm bg-black px-2 py-1 text-caption md:text-string text-primary uppercase tracking-[0.12em]">
+      <div className="absolute left-3 right-3 top-2 z-30 flex justify-between gap-2 pointer-events-none">
+        <span className={LABEL}>
           Step {step + 1} / {current.verb}
         </span>
-      </div>
-      <div className="absolute right-3 top-2 z-30 flex gap-2 pointer-events-none">
         <span
           ref={timeRef}
-          className="hidden md:inline rounded-sm bg-black px-2 py-1 font-mono text-caption text-primary tabular-nums"
+          className={clsx(LABEL, "hidden md:inline font-mono tabular-nums")}
         />
-        <span className="rounded-sm bg-black px-2 py-1 text-caption md:text-string text-primary uppercase tracking-[0.12em]">
-          {rendererName ?? "Starting"}
-        </span>
       </div>
       <div className="absolute bottom-2 left-3 right-3 z-30 flex flex-wrap justify-between gap-2 pointer-events-none">
-        <span
-          ref={modeRef}
-          className="rounded-sm bg-black px-2 py-1 text-caption md:text-string text-primary60 uppercase tracking-[0.12em]"
-        />
+        <span ref={modeRef} className={LABEL} />
         {scene.id === "plain" && (
-          <span className="rounded-sm bg-black px-2 py-1 text-caption text-paper">
+          <span className="rounded-sm bg-black px-2 py-1 text-caption text-primary">
             {current.say}
           </span>
         )}

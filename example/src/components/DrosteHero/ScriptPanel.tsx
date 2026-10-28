@@ -11,13 +11,13 @@ type ScriptPanelProps = {
 export function ScriptPanel({ scene, active, onPick }: ScriptPanelProps) {
   return (
     <div className="grid gap-2 min-w-0">
-      <span className="text-string text-primary60">{scene.file}</span>
-      <div className="overflow-x-auto font-mono text-[0.78rem] leading-[1.6] text-paper60">
+      <span className="text-string text-primary">{scene.file}</span>
+      <div className="overflow-x-auto font-mono text-[0.78rem] leading-[1.6] text-primary">
         {scene.script.map((line, i) => {
           const on = line.step !== undefined && line.step === active;
           const className = clsx(
             "block w-full whitespace-pre rounded-sm pl-1 text-left transition-colors",
-            on && "bg-primary25 text-paper",
+            on && "bg-primary text-black",
           );
           if (onPick && line.step !== undefined) {
             const step = line.step;
@@ -33,7 +33,7 @@ export function ScriptPanel({ scene, active, onPick }: ScriptPanelProps) {
                 onMouseEnter={() => onPick(step)}
                 onFocus={() => onPick(step)}
               >
-                <span className="text-primary">{step + 1} </span>
+                <span>{step + 1} </span>
                 {line.text.trimStart()}
               </button>
             );

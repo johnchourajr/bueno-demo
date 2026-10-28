@@ -21,11 +21,11 @@ export function Anatomy() {
             <code className="font-mono text-body text-primary">
               {step.name}
             </code>
-            <p className="text-body text-paper60">{step.does}</p>
+            <p className="text-body text-primary">{step.does}</p>
           </div>
         ))}
       </div>
-      <p className="col-span-full md:col-span-4 text-body text-paper60">
+      <p className="col-span-full md:col-span-4 text-body text-primary">
         Every step takes after, the pause that follows it in ms. click, type,
         fill and hover take at: [fx, fy] to aim at a point within the element.
       </p>
@@ -45,7 +45,7 @@ export function Flags() {
             <code className="font-mono text-caption text-primary">
               {row.flag}
             </code>
-            <span className="text-body text-paper60">{row.does}</span>
+            <span className="text-body text-primary">{row.does}</span>
           </div>
         ))}
       </div>
@@ -59,13 +59,13 @@ export function Agents() {
     <SliceWrapper title="Agents / the skill">
       <div className="col-span-full md:col-span-3 grid content-start gap-4">
         <GlobalHeaderCopyButton text="npx skills add johnchourajr/bueno-screen-demo" />
-        <p className="text-body text-paper60">
+        <p className="text-body text-primary">
           The skill teaches Claude Code and other agents to write the script,
           record the take and check every frame before handing it over. Then
           ask: &ldquo;record a demo of the new billing toggle&rdquo;.
         </p>
         {meta && (
-          <p className="text-caption text-primary60">
+          <p className="text-caption text-primary">
             An agent with this skill could have made the hero above. It
             didn&rsquo;t, yet.
           </p>
@@ -86,12 +86,12 @@ export function Credits() {
             key={c.role}
             className="grid grid-cols-[minmax(0,12rem)_minmax(0,1fr)] gap-4 border-t-1 border-dotted border-primary25 py-3"
           >
-            <dt className="text-string text-primary60">{c.role}</dt>
-            <dd className="text-body text-paper">{c.who}</dd>
+            <dt className="text-string text-primary">{c.role}</dt>
+            <dd className="text-body text-primary">{c.who}</dd>
           </div>
         ))}
       </dl>
-      <div className="col-span-full flex flex-wrap justify-between gap-4 pt-10 text-string text-primary60">
+      <div className="col-span-full flex flex-wrap justify-between gap-4 pt-10 text-string text-primary">
         <a href="https://john.design" className="hover:text-primary">
           John.design
         </a>
