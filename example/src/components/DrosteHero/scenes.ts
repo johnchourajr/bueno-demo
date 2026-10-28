@@ -287,14 +287,26 @@ export const heroScene: Scene = {
 };
 
 // ── Take one: prompting an agent ──
+//
+// Laid out like Claude Code: the input sits at the bottom, and each message
+// sent from it joins a transcript that stacks upward above it.
 
-const PROMPT = "> record a demo of the new settings page";
+const PROMPT = "record a demo of the new settings page";
+const APPROVE = "yes";
+/** The transcript's newest line sits on this baseline, just above the input. */
+const TRANSCRIPT_BOTTOM = 770;
+const LINE_H = 36;
+/** Extra room above the first line of each message. */
+const MESSAGE_GAP = 22;
 const PROMPT_SHOTS: Shot[] = [
-  shot(0.32, 0.25, 0.55),
-  shot(0.32, 0.32, 0.5),
-  shot(0.32, 0.5, 0.55),
-  shot(0.3, 0.75, 0.55),
+  shot(0.35, 0.8, 0.55),
+  shot(0.35, 0.72, 0.55),
+  shot(0.35, 0.64, 0.6),
+  shot(0.3, 0.78, 0.55),
 ];
+
+type TranscriptLine = { text: string; dim?: boolean; first?: boolean };
+
 const JSON_LINES = [
   "{",
   '  "url": "localhost:3000/settings",',
@@ -307,31 +319,32 @@ const JSON_LINES = [
 
 export const promptScene: Scene = {
   id: "prompt",
-  label: "A terminal where an agent is asked to record a demo, and does.",
+  label:
+    "A terminal where you ask an agent to record a demo, it reads the skill and writes the script, and you tell it yes.",
   steps: [
     {
       verb: "type",
-      at: [0.45, 0.19],
+      at: [0.3, 0.852],
       say: "Just ask.",
-      pin: "left-[45%] top-[19%]",
+      pin: "left-[30%] top-[85.2%]",
     },
     {
       verb: "hover",
-      at: [0.3, 0.28],
+      at: [0.2, 0.765],
       say: "It reads the manual.",
-      pin: "left-[30%] top-[28%]",
+      pin: "left-[20%] top-[76.5%]",
     },
     {
       verb: "hover",
-      at: [0.32, 0.5],
+      at: [0.3, 0.66],
       say: "It writes the script.",
-      pin: "left-[32%] top-[50%]",
+      pin: "left-[30%] top-[66%]",
     },
     {
-      verb: "click",
-      at: [0.106, 0.79],
+      verb: "type",
+      at: [0.16, 0.852],
       say: "You say yes.",
-      pin: "left-[10.6%] top-[79%]",
+      pin: "left-[16%] top-[85.2%]",
     },
   ],
   period: 4,
@@ -342,42 +355,53 @@ export const promptScene: Scene = {
   },
   draw(ctx, t) {
     const { i, f } = split(t, this.period);
-    windowChrome(ctx, "~/acme / agent");
-    ctx.font = `26px ${MONO}`;
-    ctx.fillStyle = REC;
-    const typed =
-      i === 0
-        ? PROMPT.slice(0, Math.round(PROMPT.length * clamp(f / 0.4, 0, 1)))
-        : PROMPT;
-    ctx.fillText(typed + (i === 0 && f < 0.45 ? "▌" : ""), 110, 200);
+    const top = windowChrome(ctx, "~/acme / agent");
+    const at = (step: number, x = 0) => reached(t, this.period, step, x);
 
-    if (reached(t, this.period, 1, 0.05)) {
-      ctx.fillText("● Reading the skill", 110, 290);
+    // What's been sent so far, oldest first.
+    const lines: TranscriptLine[] = [];
+    if (at(0, 0.5)) lines.push({ text: `> ${PROMPT}`, first: true });
+    if (at(1, 0.05)) lines.push({ text: "● Reading the skill", first: true });
+    if (at(2, 0.05)) {
+      lines.push({ text: "● Writing demos/capture.json", first: true });
+      JSON_LINES.forEach((line) =>
+        lines.push({ text: `  ${line}`, dim: true }),
+      );
     }
-    if (reached(t, this.period, 2, 0.05)) {
-      ctx.fillText("● Writing demos/settings.json", 110, 410);
-      ctx.fillStyle = REC60;
-      JSON_LINES.forEach((line, n) => ctx.fillText(line, 140, 452 + n * 34));
-      ctx.fillStyle = REC;
+    if (at(3, 0.05)) lines.push({ text: "● Run the capture?", first: true });
+    if (at(3, 0.5)) lines.push({ text: `> ${APPROVE}`, first: true });
+    if (at(3, 0.6)) lines.push({ text: "● Capturing…", first: true });
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(62, top, SOURCE_W - 124, TRANSCRIPT_BOTTOM + 20 - top);
+    ctx.clip();
+    ctx.font = `26px ${MONO}`;
+    let y = TRANSCRIPT_BOTTOM;
+    for (let n = lines.length - 1; n >= 0 && y > top; n--) {
+      ctx.fillStyle = lines[n].dim ? REC60 : REC;
+      ctx.fillText(lines[n].text, 110, y);
+      y -= LINE_H + (lines[n].first ? MESSAGE_GAP : 0);
     }
-    if (reached(t, this.period, 3, 0.05)) {
-      ctx.fillText("Run the capture?", 110, 730);
-      const yes = reached(t, this.period, 3, CLICK);
-      ctx.fillStyle = yes ? REC : WINDOW;
-      ctx.strokeStyle = REC;
-      ctx.beginPath();
-      ctx.roundRect(110, 765, 120, 50, 8);
-      ctx.fill();
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.roundRect(250, 765, 120, 50, 8);
-      ctx.stroke();
-      ctx.fillStyle = yes ? "#000" : REC;
-      ctx.fillText("Yes", 146, 799);
-      ctx.fillStyle = REC;
-      ctx.fillText("No", 294, 799);
-      if (yes && f > 0.6) ctx.fillText("● Capturing", 110, 880);
-    }
+    ctx.restore();
+
+    // The input, with whatever's being typed into it.
+    const typing = (text: string, from: number) =>
+      text.slice(0, Math.round(text.length * clamp((f - from) / 0.3, 0, 1)));
+    const draft =
+      i === 0 && f < 0.5
+        ? typing(PROMPT, 0.1)
+        : i === 3 && f >= 0.15 && f < 0.5
+          ? typing(APPROVE, 0.15)
+          : "";
+    ctx.strokeStyle = REC60;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(90, 812, SOURCE_W - 180, 80, 12);
+    ctx.stroke();
+    ctx.fillStyle = REC;
+    ctx.font = `26px ${MONO}`;
+    ctx.fillText(`> ${draft}▌`, 120, 862);
   },
 };
 
