@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "GoshaSans-Ultrabold";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/PPGoshaSans-Ultrabold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "GoshaSans-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/PPGoshaSans-Regular.woff2") format("woff2");
+}
+
+:root {
+  /* The REC light. */
+  --color-primary: 255 59 47;
+  --color-primary-hex: #ff3b2f;
+  --color-secondary: 0 0 0;
+  --color-secondary-hex: #000000;
+  --color-paper: 243 235 230;
+  color-scheme: dark;
+}
+
+::selection {
+  background: rgb(var(--color-primary) / 0.25);
+}
+
+body {
+  color: rgb(var(--color-primary));
+  background: rgb(var(--color-secondary));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .subgrid {
+    @apply grid grid-cols-subgrid;
+  }
+}
