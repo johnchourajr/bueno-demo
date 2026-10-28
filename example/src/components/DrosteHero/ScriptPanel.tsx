@@ -1,19 +1,25 @@
 import clsx from "clsx";
-import type { Scene } from "./scenes";
+import type { ScriptLine } from "./scenes";
 
 type ScriptPanelProps = {
-  scene: Scene;
+  file: string;
+  script: ScriptLine[];
   active: number;
   /** Set in the storyboard, where lines pick the pin to highlight. */
   onPick?: (step: number) => void;
 };
 
-export function ScriptPanel({ scene, active, onPick }: ScriptPanelProps) {
+export function ScriptPanel({
+  file,
+  script,
+  active,
+  onPick,
+}: ScriptPanelProps) {
   return (
     <div className="grid gap-2 min-w-0">
-      <span className="text-string text-primary">{scene.file}</span>
+      <span className="text-string text-primary">{file}</span>
       <div className="overflow-x-auto font-mono text-[0.78rem] leading-[1.6] text-primary">
-        {scene.script.map((line, i) => {
+        {script.map((line, i) => {
           const on = line.step !== undefined && line.step === active;
           const className = clsx(
             "block w-full whitespace-pre rounded-sm pl-1 text-left transition-colors",

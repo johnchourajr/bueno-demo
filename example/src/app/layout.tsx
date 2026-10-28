@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import React from "react";
 
 import { GlobalHeader } from "@/components/GlobalHeader";
-import { MetaProvider } from "@/components/Meta";
 
 import "./globals.css";
 
@@ -21,10 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans">
-        <MetaProvider>
-          <GlobalHeader />
-          {children}
-        </MetaProvider>
+        <GlobalHeader />
+        {children}
       </body>
     </html>
   );

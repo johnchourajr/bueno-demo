@@ -1,9 +1,8 @@
 "use client";
 
 import { GlobalHeaderCopyButton } from "../GlobalHeader/GlobalHeaderCopyButton";
-import { useMeta } from "../Meta";
 import { SliceWrapper } from "../SliceWrapper";
-import { flags, metaCredits, plainCredits, steps } from "./content";
+import { credits, flags, steps } from "./content";
 
 export function Anatomy() {
   return (
@@ -54,7 +53,6 @@ export function Flags() {
 }
 
 export function Agents() {
-  const { meta } = useMeta();
   return (
     <SliceWrapper title="Agents / the skill">
       <div className="col-span-full md:col-span-3 grid content-start gap-4">
@@ -64,22 +62,18 @@ export function Agents() {
           record the take and check every frame before handing it over. Then
           ask: &ldquo;record a demo of the new billing toggle&rdquo;.
         </p>
-        {meta && (
-          <p className="text-caption text-primary">
-            An agent with this skill could have made the hero above. It
-            didn&rsquo;t, yet.
-          </p>
-        )}
+        <p className="text-caption text-primary">
+          An agent with this skill could have made the hero above. It
+          didn&rsquo;t, yet.
+        </p>
       </div>
     </SliceWrapper>
   );
 }
 
 export function Credits() {
-  const { meta } = useMeta();
-  const credits = meta ? metaCredits : plainCredits;
   return (
-    <SliceWrapper title={meta ? "Credits / in order of appearance" : "Credits"}>
+    <SliceWrapper title="Credits / in order of appearance">
       <dl className="col-span-full md:col-span-4 grid">
         {credits.map((c) => (
           <div

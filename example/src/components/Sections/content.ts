@@ -43,7 +43,7 @@ export const flags = [
   { flag: "--gif", does: "Also write a 960px, 15fps GIF" },
 ];
 
-export const metaCredits = [
+export const credits = [
   { role: "Directed by", who: "a JSON file" },
   { role: "Talent", who: "your app" },
   { role: "Cursor", who: "a critically damped spring" },
@@ -53,11 +53,4 @@ export const metaCredits = [
   { role: "Post-production", who: "Remotion" },
   { role: "Catering", who: "none, it's a CLI" },
   { role: "Filmed on location", who: "this page" },
-];
-
-export const plainCredits = [
-  { role: "Browser", who: "Playwright and Chromium" },
-  { role: "Video", who: "ffmpeg" },
-  { role: "Rendering", who: "Remotion" },
-  { role: "Hero", who: "WebGPU, with WebGL2 and Canvas 2D fallbacks" },
 ];

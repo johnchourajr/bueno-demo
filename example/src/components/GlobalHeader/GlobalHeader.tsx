@@ -5,13 +5,11 @@ import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useMeta } from "../Meta";
 import { GlobalHeaderCopyButton } from "./GlobalHeaderCopyButton";
 
 export function GlobalHeader() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-  const { meta } = useMeta();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (latest > 56) {
@@ -88,9 +86,8 @@ export function GlobalHeader() {
             </div>
             <div className="col-span-full">
               <p className="text-body max-w-[15em]">
-                {meta
-                  ? "Product demo videos from a JSON script. This page is one of them."
-                  : "Product demo videos from a JSON script."}
+                Product demo videos from a JSON script. This page is one of
+                them.
               </p>
             </div>
           </motion.div>

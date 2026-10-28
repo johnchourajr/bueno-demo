@@ -3,93 +3,189 @@
 import clsx from "clsx";
 import { useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useMeta } from "../Meta";
+import { SliceWrapper } from "../SliceWrapper";
 import { LiveStage } from "./LiveStage";
-import { scenes } from "./scenes";
+import { heroScene, heroScript, takes, type Scene } from "./scenes";
 import { ScriptPanel } from "./ScriptPanel";
 import { Storyboard } from "./Storyboard";
 
+const TAKE_COPY = [
+  {
+    title: "01 / Prompt an agent",
+    body: "Ask in plain words. The skill teaches the agent to write the script and run the capture.",
+  },
+  {
+    title: "02 / Generate the capture",
+    body: "A real Chromium window plays the script at 2x and logs every move and click.",
+  },
+  {
+    title: "03 / Review the files",
+    body: "The script, the raw take, the events and the finished cut, side by side.",
+  },
+];
+
+/** The small outlined button used for play and pause. */
+const PLAY_BUTTON =
+  "h-9 rounded-sm border-0.5 border-dashed border-primary px-3 text-string text-primary hover:bg-primary10 focus-visible:outline-1 focus-visible:outline-primary";
+
 export function DrosteHero() {
-  const { meta, setMeta } = useMeta();
   const reduced = useReducedMotion();
   const [paused, setPaused] = useState(false);
   const [active, setActive] = useState(0);
-  const scene = meta ? scenes.meta : scenes.plain;
+  /** The take playing below, if any. The hero holds still while one does. */
+  const [playing, setPlaying] = useState<number | null>(null);
 
-  const toggleMeta = () => {
-    setActive(0);
-    setMeta(!meta);
-  };
+  const status = reduced
+    ? "Storyboard / motion is reduced"
+    : paused
+      ? "Paused"
+      : playing !== null
+        ? "Paused while a take plays"
+        : "Playing";
 
   return (
-    <section
-      id="hero"
-      className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
-    >
-      <div className="col-span-full md:col-span-4 min-w-0">
-        {reduced ? (
-          <Storyboard scene={scene} active={active} onPick={setActive} />
-        ) : (
-          <LiveStage scene={scene} paused={paused} onStep={setActive} />
-        )}
-      </div>
-
-      <aside className="col-span-full md:col-span-2 grid content-start gap-5 rounded-md border-1 border-dotted border-primary60 p-4 min-w-0">
-        <div className="flex flex-wrap items-center gap-3">
-          {!reduced && (
-            <button
-              type="button"
-              data-testid="hero-pause"
-              aria-pressed={paused}
-              onClick={() => setPaused((p) => !p)}
-              className="h-9 rounded-sm border-0.5 border-dashed border-primary px-3 text-string hover:bg-primary10 focus-visible:outline-1 focus-visible:outline-primary"
-            >
-              {paused ? "Play" : "Pause"}
-            </button>
+    <>
+      <section
+        id="hero"
+        className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
+      >
+        <div className="col-span-full md:col-span-4 min-w-0">
+          {reduced ? (
+            <Storyboard
+              scene={heroScene}
+              active={active}
+              onPick={setActive}
+              testId="hero-storyboard"
+            />
+          ) : (
+            <LiveStage
+              scene={heroScene}
+              paused={paused || playing !== null}
+              onStep={setActive}
+              testId="hero-stage"
+              hints={{
+                paused: "Paused / click, then scroll to drive",
+                playing: "Autopilot / click, then scroll to drive",
+              }}
+              showTime
+            />
           )}
-          <button
-            type="button"
-            role="switch"
-            data-testid="meta-toggle"
-            aria-checked={meta}
-            onClick={toggleMeta}
-            className="flex h-9 items-center gap-2 rounded-sm px-1 text-string focus-visible:outline-1 focus-visible:outline-primary"
-          >
-            <span
-              aria-hidden="true"
-              className={clsx(
-                "relative h-5 w-9 rounded-full border-1 border-primary transition-colors",
-                meta ? "bg-primary25" : "bg-transparent",
-              )}
-            >
-              <span
-                className={clsx(
-                  "absolute top-[2px] h-[14px] w-[14px] rounded-full bg-primary transition-[left]",
-                  meta ? "left-[18px]" : "left-[2px]",
-                )}
-              />
-            </span>
-            Meta {meta ? "on" : "off"}
-          </button>
         </div>
 
-        <ScriptPanel
+        <aside className="col-span-full md:col-span-2 grid content-start gap-5 rounded-md border-1 border-dotted border-primary60 p-4 min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            {!reduced && (
+              <button
+                type="button"
+                data-testid="hero-pause"
+                aria-pressed={paused}
+                onClick={() => setPaused((p) => !p)}
+                className={PLAY_BUTTON}
+              >
+                {paused ? "Play" : "Pause"}
+              </button>
+            )}
+            <span
+              data-testid="hero-status"
+              aria-live="polite"
+              className="text-string text-primary"
+            >
+              <span
+                aria-hidden="true"
+                className={clsx(
+                  "mr-2 inline-block h-2 w-2 rounded-full bg-primary",
+                  status !== "Playing" && "opacity-30",
+                )}
+              />
+              {status}
+            </span>
+          </div>
+          <ScriptPanel
+            file="demos/hero.json"
+            script={heroScript}
+            active={active}
+            onPick={reduced ? setActive : undefined}
+          />
+        </aside>
+      </section>
+
+      <SliceWrapper
+        title={reduced ? "Three takes" : "Three takes / hover to play"}
+        innerClassName="gap-4"
+      >
+        <div
+          id="takes"
+          className="col-span-full grid grid-cols-subgrid gap-y-8"
+        >
+          {takes.map((scene, i) => (
+            <Take
+              key={scene.id}
+              scene={scene}
+              index={i}
+              reduced={reduced}
+              playing={playing === i}
+              onPlaying={(on) =>
+                setPlaying((current) =>
+                  on ? i : current === i ? null : current,
+                )
+              }
+            />
+          ))}
+        </div>
+      </SliceWrapper>
+    </>
+  );
+}
+
+type TakeProps = {
+  scene: Scene;
+  index: number;
+  reduced: boolean;
+  playing: boolean;
+  onPlaying: (on: boolean) => void;
+};
+
+/** One take below the hero: plays while a mouse is over it, or from its button on touch and keyboard. */
+function Take({ scene, index, reduced, playing, onPlaying }: TakeProps) {
+  const [active, setActive] = useState(0);
+  const copy = TAKE_COPY[index];
+
+  return (
+    <div
+      className="col-span-full md:col-span-2 grid content-start gap-3 min-w-0"
+      onPointerEnter={(e) => e.pointerType === "mouse" && onPlaying(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && onPlaying(false)}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-string text-primary">{copy.title}</h3>
+        {!reduced && (
+          <button
+            type="button"
+            data-testid={`take-play-${scene.id}`}
+            aria-pressed={playing}
+            onClick={() => onPlaying(!playing)}
+            className={PLAY_BUTTON}
+          >
+            {playing ? "Pause" : "Play"}
+          </button>
+        )}
+      </div>
+      {reduced ? (
+        <Storyboard
           scene={scene}
           active={active}
-          onPick={reduced ? setActive : undefined}
+          onPick={setActive}
+          testId={`take-${scene.id}-storyboard`}
         />
-
-        <p className="text-body text-primary">
-          {meta
-            ? "A recording of this page, which holds this hero. The camera tours one script step at a time while the cursor stays on top. The last step dives into the hero and racks focus, and whatever sits off the focal plane falls apart into dither."
-            : "The settings example that ships with the package, played the way the CLI records it: eased zoom toward each click, a spring-smoothed cursor."}
-        </p>
-        <p className="text-caption text-primary">
-          {reduced
-            ? "Your system asks for reduced motion, so this is a still storyboard. Point at a step to find it."
-            : "Click the hero, then scroll (or drag sideways) to drive. Stop for a moment and autopilot picks up again."}
-        </p>
-      </aside>
-    </section>
+      ) : (
+        <LiveStage
+          scene={scene}
+          paused={!playing}
+          testId={`take-${scene.id}-stage`}
+          hints={{ paused: "Hover to play", playing: "Playing" }}
+        />
+      )}
+      <p className="text-body text-primary">{copy.body}</p>
+    </div>
   );
 }

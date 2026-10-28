@@ -9,13 +9,14 @@ type StoryboardProps = {
   scene: Scene;
   active: number;
   onPick: (step: number) => void;
+  testId: string;
 };
 
 /**
  * The reduced-motion hero: one still frame with a numbered pin for each step,
  * matched to the numbered script lines. Nothing moves unless you point at it.
  */
-export function Storyboard({ scene, active, onPick }: StoryboardProps) {
+export function Storyboard({ scene, active, onPick, testId }: StoryboardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -33,15 +34,14 @@ export function Storyboard({ scene, active, onPick }: StoryboardProps) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(canvas.clientWidth * dpr);
       canvas.height = Math.round(canvas.clientHeight * dpr);
-      // The plain scene's last moment shows every step's result at once.
-      scene.draw(ctx, scene.id === "plain" ? scene.period - 0.01 : 0, 0);
+      scene.draw(ctx, scene.still, 0);
       renderer.draw(
         source,
         {
           cx: 0.5,
           cy: 0.5,
           s: 1,
-          depth: scene.id === "meta" ? 8 : 0,
+          depth: scene.box.k < 1 ? 8 : 0,
           focus: 0,
           blur: 0,
         },
@@ -60,7 +60,7 @@ export function Storyboard({ scene, active, onPick }: StoryboardProps) {
 
   return (
     <div
-      data-testid="hero-storyboard"
+      data-testid={testId}
       className="relative aspect-[16/10] w-full overflow-hidden rounded-md border-1 border-primary60 bg-black"
     >
       <canvas
@@ -72,7 +72,7 @@ export function Storyboard({ scene, active, onPick }: StoryboardProps) {
         <button
           key={i}
           type="button"
-          data-testid={`storyboard-pin-${i}`}
+          data-testid={`${testId}-pin-${i}`}
           aria-label={`Step ${i + 1}: ${step.say}`}
           onMouseEnter={() => onPick(i)}
           onFocus={() => onPick(i)}
