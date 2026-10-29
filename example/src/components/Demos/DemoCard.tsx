@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { motion, useMotionValue } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -40,7 +41,7 @@ export function DemoCard({ demo, index, files }: DemoCardProps) {
   return (
     <article
       id={demo.id}
-      className="col-span-full md:col-span-3 grid grid-cols-1 content-start gap-3 min-w-0 scroll-mt-24"
+      className="grid grid-cols-1 content-start gap-3 min-w-0 scroll-mt-24"
     >
       {gif ? <GifStage demo={demo} /> : <VideoStage demo={demo} />}
       <div className="flex items-baseline justify-between gap-3">
@@ -83,6 +84,13 @@ export function DemoCard({ demo, index, files }: DemoCardProps) {
 }
 
 type StageProps = { demo: Demo };
+
+/** Dimmed while paused, so it reads as stopped at a glance. */
+const media = (playing: boolean) =>
+  clsx(
+    "motion-safe:transition-opacity motion-safe:duration-300",
+    !playing && "opacity-50",
+  );
 
 const STAGE =
   "relative aspect-[16/10] overflow-hidden rounded-md border-1 border-dotted border-primary60 bg-black";
@@ -147,7 +155,7 @@ function VideoStage({ demo }: StageProps) {
         playsInline
         preload="metadata"
         aria-label={`${demo.title}: ${demo.blurb}`}
-        className="h-full w-full object-contain"
+        className={clsx("h-full w-full object-contain", media(playing))}
       />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-primary25">
         <motion.div
@@ -177,7 +185,7 @@ function GifStage({ demo }: StageProps) {
         alt={`${demo.title}: ${demo.blurb}`}
         fill
         unoptimized
-        className="object-contain"
+        className={clsx("object-contain", media(playing))}
       />
       <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
         <PlayButton

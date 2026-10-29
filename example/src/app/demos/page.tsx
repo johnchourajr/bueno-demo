@@ -51,9 +51,12 @@ export default function DemosPage() {
           a different option, from the camera and the frame to captions,
           branding and output format.
         </p>
-        {(demos as Demo[]).map((demo, i) => (
-          <DemoCard key={demo.id} demo={demo} index={i} files={files(demo)} />
-        ))}
+        {/* Columns at least 440px wide, as many as fit: three from about 1400px. */}
+        <div className="col-span-full grid grid-cols-[repeat(auto-fill,minmax(min(100%,440px),1fr))] gap-x-4 gap-y-16">
+          {(demos as Demo[]).map((demo, i) => (
+            <DemoCard key={demo.id} demo={demo} index={i} files={files(demo)} />
+          ))}
+        </div>
       </SliceWrapper>
     </MainLayout>
   );
