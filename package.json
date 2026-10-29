@@ -41,7 +41,7 @@
     "test": "node --test test/*.test.ts"
   },
   "dependencies": {
-    "@remotion/bundler": "4.0.535",
+    "@remotion/bundler": "4.0.539",
     "@remotion/renderer": "4.0.535",
     "playwright": "1.64.0",
     "react": "19.2.0",
