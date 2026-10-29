@@ -9,7 +9,7 @@ const OG_ALT =
   "Bueno/Screen-Demo: agent-created product demo videos from a JSON script.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://screen-demo.dev.bueno.enterprises"),
+  metadataBase: new URL("https://screen-demo.oss.bueno.enterprises"),
   title: "Bueno Screen-Demo",
   description:
     "Agent-created product demo videos from a JSON script: a real browser, an eased zoom toward each click and a spring-smoothed cursor.",
