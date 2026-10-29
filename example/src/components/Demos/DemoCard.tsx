@@ -100,8 +100,19 @@ const media = (playing: boolean) =>
     !playing && "opacity-50",
   );
 
-const STAGE =
-  "relative aspect-[16/10] overflow-hidden rounded-md border-1 border-dotted border-primary60 bg-black";
+/**
+ * The clip's box. Its stroke is drawn over the clip rather than taking space
+ * inside the box, which would leave a sliver of backing down the sides. It
+ * turns solid while the clip plays.
+ */
+const stage = (playing: boolean) =>
+  clsx(
+    "relative aspect-[16/10] overflow-hidden rounded-md bg-black",
+    "after:pointer-events-none after:absolute after:inset-0 after:rounded-md after:border-1 after:content-['']",
+    playing
+      ? "after:border-solid after:border-primary"
+      : "after:border-dotted after:border-primary60",
+  );
 
 /**
  * Plays while the pointer is over the card. Touch screens have no hover, so the
@@ -152,7 +163,7 @@ function VideoStage({ demo, playing, onToggle }: StageProps) {
   }, [playing, progress]);
 
   return (
-    <div className={STAGE}>
+    <div className={stage(playing)}>
       <video
         ref={ref}
         src={`/takes/${demo.id}.mp4`}
@@ -185,7 +196,7 @@ function VideoStage({ demo, playing, onToggle }: StageProps) {
 /** The GIF itself, the file a README would embed, shown while it plays. */
 function GifStage({ demo, playing, onToggle }: StageProps) {
   return (
-    <div className={STAGE}>
+    <div className={stage(playing)}>
       <Image
         src={playing ? `/takes/${demo.id}.gif` : `/takes/${demo.id}.webp`}
         alt={`${demo.title}: ${demo.blurb}`}
