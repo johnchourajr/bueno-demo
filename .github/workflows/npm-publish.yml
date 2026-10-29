@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24" # Ships npm 11, which trusted publishing needs
+          node-version: "26" # Ships npm 11, which trusted publishing needs
           registry-url: "https://registry.npmjs.org/"
           cache: pnpm
 

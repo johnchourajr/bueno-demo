@@ -19,7 +19,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@types/node": "^22",
+    "@types/node": "^26.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@webgpu/types": "0.1.74",
