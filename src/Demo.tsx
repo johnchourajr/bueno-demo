@@ -1,7 +1,6 @@
 import {
   AbsoluteFill,
   Freeze,
-  Easing,
   OffthreadVideo,
   interpolate,
   staticFile,
@@ -9,67 +8,15 @@ import {
   useVideoConfig,
 } from "remotion";
 import { useMemo, useState } from "react";
+import { camera, ease, shots, type Point } from "./camera";
 import { END_CAP, EndCap, LowerThird, loadBrandFonts, resolveBrand, type ResolvedBrand } from "./brand";
 import type { DemoEvent, DemoProps } from "./types";
 
-/** Screen Studio's feel: slow in, slow out, no overshoot. */
-const ease = Easing.bezier(0.45, 0, 0.15, 1);
+// The camera's timing (zoom in and out, the hold, pans, and when clicks share
+// one shot) lives in ./camera, with the reasoning for each number.
 
-/** Seconds the camera takes to zoom in before a click, and out after. */
-const ZOOM_IN = 0.88;
-const ZOOM_OUT = 1.0;
-/** Clicks closer together than this share one zoom and the camera pans. */
-const CLUSTER_GAP = 2.6;
-/** How long the camera holds on the last click before easing out. */
-const HOLD = 1.4;
-/** Seconds a pan takes within a shot. It starts as the cursor heads off, so
- *  something that opens out of view comes into frame quickly. */
-const PAN = 0.5;
-
-type Point = { x: number; y: number };
 type Click = Extract<DemoEvent, { type: "click" }>;
 type Say = Extract<DemoEvent, { type: "say" }>;
-/** `lead`: when the cursor set off toward this point; the pan starts then. */
-type Focus = { t: number; x: number; y: number; lead?: number };
-
-/** Zooming clicks and focus hovers grouped into shots: in before the first,
- *  out after the last. */
-function shots(points: Focus[]): Focus[][] {
-  const out: Focus[][] = [];
-  for (const c of points) {
-    const last = out.at(-1);
-    if (last && c.t - last[last.length - 1].t < CLUSTER_GAP) last.push(c);
-    else out.push([c]);
-  }
-  return out;
-}
-
-/** 0 (wide) to 1 (zoomed in) at time t, and the point the camera follows. */
-function camera(t: number, groups: Focus[][]): { amount: number; focus: Point | null } {
-  for (const g of groups) {
-    const start = g[0].t - ZOOM_IN;
-    const end = g[g.length - 1].t + HOLD + ZOOM_OUT;
-    if (t < start || t > end) continue;
-    const inAmt = interpolate(t, [start, g[0].t], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease });
-    const outAmt = interpolate(t, [end - ZOOM_OUT, end], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease });
-    return { amount: Math.min(inAmt, outAmt), focus: followPoint(t, g) };
-  }
-  return { amount: 0, focus: null };
-}
-
-/** Where the camera looks within a shot: each click in turn, panning between. */
-function followPoint(t: number, g: Focus[]): Point {
-  if (t <= g[0].t) return g[0];
-  for (let i = 1; i < g.length; i++) {
-    if (t < g[i].t) {
-      const from = Math.max(g[i - 1].t, g[i].lead ?? g[i].t - PAN);
-      const to = Math.min(from + PAN, g[i].t);
-      const p = interpolate(t, [from, Math.max(to, from + 0.01)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease });
-      return { x: g[i - 1].x + (g[i].x - g[i - 1].x) * p, y: g[i - 1].y + (g[i].y - g[i - 1].y) * p };
-    }
-  }
-  return g[g.length - 1];
-}
 
 /**
  * The cursor's path, one point per frame. It chases each target on a
