@@ -1,1 +1,1 @@
-export { DemoCard, type Demo } from "./DemoCard";
+export { DemoCard, type Demo, type DemoFile } from "./DemoCard";

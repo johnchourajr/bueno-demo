@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DemoCard, type Demo } from "@/components/Demos";
+import { DemoCard, type Demo, type DemoFile } from "@/components/Demos";
 import { MainLayout } from "@/components/MainLayout";
 import { SliceWrapper } from "@/components/SliceWrapper";
 import demos from "../../../demos/demos.json";
@@ -13,10 +13,18 @@ export const metadata: Metadata = {
     "Ten takes recorded with @bueno-dev/screen-demo, each turning a different knob: matte, zoom, captions, branding, speed, phone width, GIF.",
 };
 
-/** A demo's capture script, read at build time. */
-function script(id: string) {
-  const file = path.join(process.cwd(), "demos/scripts", `${id}.json`);
-  return fs.readFileSync(file, "utf8").trim();
+const read = (file: string) =>
+  fs.readFileSync(path.join(process.cwd(), "demos", file), "utf8").trim();
+
+/** A demo's capture script, then any file its flags name, read at build time. */
+function files(demo: Demo): DemoFile[] {
+  const brand = demo.flags[demo.flags.indexOf("--brand") + 1];
+  return [
+    { name: `${demo.id}.json`, text: read(`scripts/${demo.id}.json`) },
+    ...(demo.flags.includes("--brand")
+      ? [{ name: brand, text: read(brand) }]
+      : []),
+  ];
 }
 
 export default function DemosPage() {
@@ -26,7 +34,9 @@ export default function DemosPage() {
         <Link
           href="/"
           data-testid="demos-home"
-          className="text-string text-primary60 hover:text-primary"
+          // The title's tight leading lets its glyphs reach up over this link,
+          // so it sits above them.
+          className="relative z-10 self-start text-string text-primary60 hover:text-primary"
         >
           ← screen-demo
         </Link>
@@ -42,12 +52,7 @@ export default function DemosPage() {
           branding and output format.
         </p>
         {(demos as Demo[]).map((demo, i) => (
-          <DemoCard
-            key={demo.id}
-            demo={demo}
-            index={i}
-            script={script(demo.id)}
-          />
+          <DemoCard key={demo.id} demo={demo} index={i} files={files(demo)} />
         ))}
       </SliceWrapper>
     </MainLayout>

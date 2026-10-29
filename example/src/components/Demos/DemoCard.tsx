@@ -1,8 +1,8 @@
 "use client";
 
+import { motion, useMotionValue } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { PlayButton } from "../DrosteHero/PlayButton";
 
 export type Demo = {
@@ -15,19 +15,21 @@ export type Demo = {
   flags: string[];
 };
 
+/** A file the take was made from, by name, with its text. */
+export type DemoFile = { name: string; text: string };
+
 type DemoCardProps = {
   demo: Demo;
   index: number;
-  /** The capture script, pretty-printed. */
-  script: string;
+  /** The capture script first, then any file a flag points to. */
+  files: DemoFile[];
 };
 
 /** A flag value as you'd type it in a shell. */
 const shell = (arg: string) => (/[\s#']/.test(arg) ? `'${arg}'` : arg);
 
 /** One take: the clip, what it shows, and the commands that made it. */
-export function DemoCard({ demo, index, script }: DemoCardProps) {
-  const reduced = useReducedMotion();
+export function DemoCard({ demo, index, files }: DemoCardProps) {
   const gif = demo.flags.includes("--gif");
   const number = String(index + 1).padStart(2, "0");
   const render = [
@@ -40,11 +42,7 @@ export function DemoCard({ demo, index, script }: DemoCardProps) {
       id={demo.id}
       className="col-span-full md:col-span-3 grid grid-cols-1 content-start gap-3 min-w-0 scroll-mt-24"
     >
-      {gif ? (
-        <GifStage demo={demo} reduced={reduced} />
-      ) : (
-        <VideoStage demo={demo} reduced={reduced} />
-      )}
+      {gif ? <GifStage demo={demo} /> : <VideoStage demo={demo} />}
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-string text-primary">
           {number} / {demo.title}
@@ -64,39 +62,59 @@ export function DemoCard({ demo, index, script }: DemoCardProps) {
         >
           <span className="group-open:hidden">+ </span>
           <span className="hidden group-open:inline">− </span>
-          {demo.id}.json
+          {new Intl.ListFormat("en").format(files.map((f) => f.name))}
         </summary>
-        <pre className="overflow-x-auto border-t-0.5 border-dashed border-primary25 p-3 font-mono text-caption text-primary">
-          {script}
-        </pre>
+        {files.map((file) => (
+          <div
+            key={file.name}
+            className="border-t-0.5 border-dashed border-primary25 p-3"
+          >
+            {files.length > 1 && (
+              <p className="pb-2 text-caption text-primary60">{file.name}</p>
+            )}
+            <pre className="overflow-x-auto font-mono text-caption text-primary">
+              {file.text}
+            </pre>
+          </div>
+        ))}
       </details>
     </article>
   );
 }
 
-type StageProps = { demo: Demo; reduced: boolean };
+type StageProps = { demo: Demo };
 
 const STAGE =
   "relative aspect-[16/10] overflow-hidden rounded-md border-1 border-dotted border-primary60 bg-black";
 
-/** The MP4: plays while on screen, unless motion is reduced or it's paused. */
-function VideoStage({ demo, reduced }: StageProps) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const [visible, setVisible] = useState(false);
+/**
+ * Plays while the pointer is over it. Touch screens have no hover, so the
+ * button plays and pauses there.
+ */
+function useHoverPlay() {
+  const [hovered, setHovered] = useState(false);
   /** null until someone presses play or pause; then their choice wins. */
   const [chosen, setChosen] = useState<boolean | null>(null);
-  const playing = chosen ?? (visible && !reduced);
+  const playing = chosen ?? hovered;
+  const hover = {
+    onPointerEnter: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse") setHovered(true);
+    },
+    onPointerLeave: (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      setHovered(false);
+      setChosen(null);
+    },
+  };
+  return { playing, hover, toggle: () => setChosen(!playing) };
+}
 
-  useEffect(() => {
-    const video = ref.current;
-    if (!video) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.5 },
-    );
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
+/** The MP4, on its poster until it plays. */
+function VideoStage({ demo }: StageProps) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const { playing, hover, toggle } = useHoverPlay();
+  /** How far through the clip, 0 to 1. */
+  const progress = useMotionValue(0);
 
   useEffect(() => {
     const video = ref.current;
@@ -105,8 +123,21 @@ function VideoStage({ demo, reduced }: StageProps) {
     else video.pause();
   }, [playing]);
 
+  // Every frame while it plays, so the bar glides rather than ticking.
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || !playing) return;
+    let id = 0;
+    const tick = () => {
+      if (video.duration) progress.set(video.currentTime / video.duration);
+      id = requestAnimationFrame(tick);
+    };
+    id = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(id);
+  }, [playing, progress]);
+
   return (
-    <div className={STAGE}>
+    <div className={STAGE} {...hover}>
       <video
         ref={ref}
         src={`/takes/${demo.id}.mp4`}
@@ -118,10 +149,16 @@ function VideoStage({ demo, reduced }: StageProps) {
         aria-label={`${demo.title}: ${demo.blurb}`}
         className="h-full w-full object-contain"
       />
-      <div className="absolute bottom-3 right-3 bg-black60 backdrop-blur-md rounded-sm">
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-primary25">
+        <motion.div
+          className="h-full origin-left bg-primary"
+          style={{ scaleX: progress }}
+        />
+      </div>
+      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
         <PlayButton
           playing={playing}
-          onToggle={() => setChosen(!playing)}
+          onToggle={toggle}
           testId={`demo-play-${demo.id}`}
           label={demo.title}
         />
@@ -130,17 +167,26 @@ function VideoStage({ demo, reduced }: StageProps) {
   );
 }
 
-/** The GIF itself, the file a README would embed. Its poster when motion is reduced. */
-function GifStage({ demo, reduced }: StageProps) {
+/** The GIF itself, the file a README would embed, shown while it plays. */
+function GifStage({ demo }: StageProps) {
+  const { playing, hover, toggle } = useHoverPlay();
   return (
-    <div className={STAGE}>
+    <div className={STAGE} {...hover}>
       <Image
-        src={reduced ? `/takes/${demo.id}.webp` : `/takes/${demo.id}.gif`}
+        src={playing ? `/takes/${demo.id}.gif` : `/takes/${demo.id}.webp`}
         alt={`${demo.title}: ${demo.blurb}`}
         fill
         unoptimized
         className="object-contain"
       />
+      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
+        <PlayButton
+          playing={playing}
+          onToggle={toggle}
+          testId={`demo-play-${demo.id}`}
+          label={demo.title}
+        />
+      </div>
     </div>
   );
 }

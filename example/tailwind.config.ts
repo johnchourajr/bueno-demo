@@ -35,6 +35,7 @@ const config: Config = {
       paper: "rgb(var(--color-paper))",
       paper60: "rgb(var(--color-paper) / 0.6)",
       black: "rgb(var(--color-secondary))",
+      black90: "rgb(var(--color-secondary) / 0.9)",
       black60: "rgb(var(--color-secondary) / 0.6)",
       black40: "rgb(var(--color-secondary) / 0.4)",
     },
