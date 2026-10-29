@@ -44,7 +44,7 @@ brew install ffmpeg               # required; add imagemagick for WebP posters
 }
 ```
 
-**Steps**, each optionally with `after` (ms to pause afterwards):
+**Steps**, each optionally with `after` (ms to pause afterwards) and `say` (a short line shown beside the cursor until a later step changes or drops it; keep it to a few words):
 
 - `click`: glide to the element and click. `zoom: false` skips the camera zoom; use it on a click that navigates.
 - `type`: click, then type `text` (`delay` ms per key, default 55; `clear: true` replaces the value).

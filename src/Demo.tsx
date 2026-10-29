@@ -28,6 +28,7 @@ const PAN = 0.5;
 
 type Point = { x: number; y: number };
 type Click = Extract<DemoEvent, { type: "click" }>;
+type Say = Extract<DemoEvent, { type: "say" }>;
 /** `lead`: when the cursor set off toward this point; the pan starts then. */
 type Focus = { t: number; x: number; y: number; lead?: number };
 
@@ -131,7 +132,7 @@ export function Demo(props: DemoProps) {
     <AbsoluteFill style={{ backgroundColor: brand.paper }}>
       <AbsoluteFill style={{ transform: `scale(${1 - 0.05 * settle})`, filter: `blur(${18 * settle}px)` }}>
         <Freeze frame={Math.min(frame, takeFrames - 1)}>
-          <Take {...props} accent={brand.accent} />
+          <Take {...props} brand={brand} />
         </Freeze>
       </AbsoluteFill>
       {props.title && <LowerThird t={t} kicker={props.kicker ?? brand.kicker ?? null} title={props.title} brand={brand} />}
@@ -149,8 +150,8 @@ function Take({
   matte,
   zoom,
   speed,
-  accent,
-}: DemoProps & { accent: ResolvedBrand["accent"] }) {
+  brand,
+}: Omit<DemoProps, "brand"> & { brand: ResolvedBrand }) {
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
   // Seconds into the take: slower playback steps through it more finely.
@@ -205,6 +206,17 @@ function Take({
   const press = sinceClick < 0.25 ? interpolate(sinceClick, [0, 0.1, 0.25], [1, 0.82, 1]) : 1;
   const ripple = sinceClick < 0.5 ? sinceClick / 0.5 : null;
 
+  // The cursor's line, if any: the latest say, or the one just cleared while it fades.
+  const says = evs.filter((e): e is Say => e.type === "say" && e.t <= t);
+  const lastSay = says.at(-1);
+  const line = lastSay?.text ?? says.at(-2)?.text ?? null;
+  const sinceSay = lastSay ? t - lastSay.t : 0;
+  const shown = lastSay?.text
+    ? interpolate(sinceSay, [0, SAY_IN], [0, 1], { extrapolateRight: "clamp", easing: ease })
+    : interpolate(sinceSay, [0, SAY_OUT], [1, 0], { extrapolateRight: "clamp", easing: ease });
+  // Where the cursor sits in the window, so the bubble stays one size through the zoom.
+  const tip = { x: (tx + cursor.x * z) * scale, y: (ty + cursor.y * z) * scale };
+
   return (
     <AbsoluteFill style={{ backgroundColor: matte ?? "#000", alignItems: "center", justifyContent: "center" }}>
       <div
@@ -247,7 +259,7 @@ function Take({
                 marginLeft: -22,
                 marginTop: -22,
                 borderRadius: "50%",
-                background: accent,
+                background: brand.accent,
                 transform: `scale(${0.3 + ripple * 1.2})`,
                 opacity: 1 - ripple,
               }}
@@ -255,8 +267,63 @@ function Take({
           )}
           <Cursor x={cursor.x} y={cursor.y} press={press} />
         </div>
+        {line && shown > 0 && <Bubble text={line} at={tip} shown={shown} room={winW} size={width} brand={brand} />}
       </div>
     </AbsoluteFill>
+  );
+}
+
+/** Seconds a line takes to pop in, and to fade once cleared. */
+const SAY_IN = 0.22;
+const SAY_OUT = 0.18;
+
+/**
+ * The cursor's speech bubble, beside the arrow in the brand's ink and paper.
+ * It sits to the right of the tip, or to the left when that would run out of
+ * the window. Sized against a 1920px-wide output.
+ */
+function Bubble({
+  text,
+  at,
+  shown,
+  room,
+  size,
+  brand,
+}: {
+  text: string;
+  at: Point;
+  shown: number;
+  room: number;
+  size: number;
+  brand: ResolvedBrand;
+}) {
+  const u = size / 1920;
+  const font = 26 * u;
+  // A rough width, good enough to choose a side.
+  const w = text.length * font * 0.56 + 44 * u;
+  const flip = at.x + 36 * u + w > room;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: at.y + 30 * u,
+        ...(flip ? { right: room - at.x + 8 * u } : { left: at.x + 30 * u }),
+        padding: `${12 * u}px ${22 * u}px`,
+        borderRadius: 999,
+        background: brand.ink,
+        color: brand.paper,
+        fontFamily: brand.display,
+        fontSize: font,
+        lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        boxShadow: `0 ${8 * u}px ${24 * u}px rgba(0, 0, 0, 0.25)`,
+        opacity: shown,
+        transform: `scale(${0.92 + 0.08 * shown})`,
+        transformOrigin: flip ? "top right" : "top left",
+      }}
+    >
+      {text}
+    </div>
   );
 }
 
