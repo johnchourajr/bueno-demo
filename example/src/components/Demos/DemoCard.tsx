@@ -32,6 +32,7 @@ const shell = (arg: string) => (/[\s#']/.test(arg) ? `'${arg}'` : arg);
 /** One take: the clip, what it shows, and the commands that made it. */
 export function DemoCard({ demo, index, files }: DemoCardProps) {
   const gif = demo.flags.includes("--gif");
+  const { playing, hover, toggle } = useHoverPlay();
   const number = String(index + 1).padStart(2, "0");
   const render = [
     "bueno-screen-demo render take out",
@@ -41,9 +42,16 @@ export function DemoCard({ demo, index, files }: DemoCardProps) {
   return (
     <article
       id={demo.id}
-      className="grid grid-cols-1 content-start gap-3 min-w-0 scroll-mt-24"
+      // Hovering anywhere on the card plays it. The card reaches halfway into
+      // the gaps around it (gap-x-4, gap-y-16), so neighbours meet in the middle.
+      className="-mx-2 -my-8 grid grid-cols-1 content-start gap-3 min-w-0 px-2 py-8 scroll-mt-16"
+      {...hover}
     >
-      {gif ? <GifStage demo={demo} /> : <VideoStage demo={demo} />}
+      {gif ? (
+        <GifStage demo={demo} playing={playing} onToggle={toggle} />
+      ) : (
+        <VideoStage demo={demo} playing={playing} onToggle={toggle} />
+      )}
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-string text-primary">
           {number} / {demo.title}
@@ -83,7 +91,7 @@ export function DemoCard({ demo, index, files }: DemoCardProps) {
   );
 }
 
-type StageProps = { demo: Demo };
+type StageProps = { demo: Demo; playing: boolean; onToggle: () => void };
 
 /** Dimmed while paused, so it reads as stopped at a glance. */
 const media = (playing: boolean) =>
@@ -96,7 +104,7 @@ const STAGE =
   "relative aspect-[16/10] overflow-hidden rounded-md border-1 border-dotted border-primary60 bg-black";
 
 /**
- * Plays while the pointer is over it. Touch screens have no hover, so the
+ * Plays while the pointer is over the card. Touch screens have no hover, so the
  * button plays and pauses there.
  */
 function useHoverPlay() {
@@ -118,9 +126,8 @@ function useHoverPlay() {
 }
 
 /** The MP4, on its poster until it plays. */
-function VideoStage({ demo }: StageProps) {
+function VideoStage({ demo, playing, onToggle }: StageProps) {
   const ref = useRef<HTMLVideoElement>(null);
-  const { playing, hover, toggle } = useHoverPlay();
   /** How far through the clip, 0 to 1. */
   const progress = useMotionValue(0);
 
@@ -145,7 +152,7 @@ function VideoStage({ demo }: StageProps) {
   }, [playing, progress]);
 
   return (
-    <div className={STAGE} {...hover}>
+    <div className={STAGE}>
       <video
         ref={ref}
         src={`/takes/${demo.id}.mp4`}
@@ -166,7 +173,7 @@ function VideoStage({ demo }: StageProps) {
       <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
         <PlayButton
           playing={playing}
-          onToggle={toggle}
+          onToggle={onToggle}
           testId={`demo-play-${demo.id}`}
           label={demo.title}
         />
@@ -176,10 +183,9 @@ function VideoStage({ demo }: StageProps) {
 }
 
 /** The GIF itself, the file a README would embed, shown while it plays. */
-function GifStage({ demo }: StageProps) {
-  const { playing, hover, toggle } = useHoverPlay();
+function GifStage({ demo, playing, onToggle }: StageProps) {
   return (
-    <div className={STAGE} {...hover}>
+    <div className={STAGE}>
       <Image
         src={playing ? `/takes/${demo.id}.gif` : `/takes/${demo.id}.webp`}
         alt={`${demo.title}: ${demo.blurb}`}
@@ -190,7 +196,7 @@ function GifStage({ demo }: StageProps) {
       <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
         <PlayButton
           playing={playing}
-          onToggle={toggle}
+          onToggle={onToggle}
           testId={`demo-play-${demo.id}`}
           label={demo.title}
         />
