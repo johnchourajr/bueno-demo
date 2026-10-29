@@ -1,6 +1,6 @@
 {
   "name": "@bueno-dev/screen-demo",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Screen Studio-style product demo videos from a JSON script: a real browser, an eased zoom-to-click camera and a spring-smoothed cursor.",
   "keywords": [
     "demo",
@@ -37,7 +37,8 @@
   },
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.535",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@remotion/cli": "4.0.535",
+    "@types/node": "^22.20.5",
     "@types/react": "^19.2.0",
     "typescript": "^5.9.0"
   }

@@ -140,7 +140,7 @@ A brand file (paths relative to it):
 ## How it works
 
 - **Capture** drives Chromium with Playwright and a real mouse, so hover states show. Chrome's screencast sends each frame at 2x with its own timestamp, and ffmpeg rebuilds a steady 30fps video from those timestamps, so clicks line up with the picture. Every move and click is logged to `events.json`.
-- **Render** is a [Remotion](https://www.remotion.dev) composition. Clicks less than 2.6s apart share one zoom and the camera pans between them; it holds 1.4s on the last, then eases out. The cursor follows a critically damped spring, so it eases out of rest and settles without overshoot. Tune the feel in `src/Demo.tsx`; `npm run studio` opens Remotion Studio.
+- **Render** is a [Remotion](https://www.remotion.dev) composition. Zooming clicks share one zoom, and the camera pans between them, unless there is room to hold 1.4s, ease out over 1s, rest wide for at least 0.8s and ease back in over 0.88s (about 4.1s between clicks). That way the camera never zooms out only to dive straight back in. The cursor follows a critically damped spring, so it eases out of rest and settles without overshoot. Tune the feel in `src/Demo.tsx`; `npm run studio` opens Remotion Studio.
 
 ## License
 
