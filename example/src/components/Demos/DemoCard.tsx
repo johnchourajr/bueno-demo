@@ -38,7 +38,7 @@ export function DemoCard({ demo, index, script }: DemoCardProps) {
   return (
     <article
       id={demo.id}
-      className="col-span-full md:col-span-3 grid content-start gap-3 min-w-0 scroll-mt-24"
+      className="col-span-full md:col-span-3 grid grid-cols-1 content-start gap-3 min-w-0 scroll-mt-24"
     >
       {gif ? (
         <GifStage demo={demo} reduced={reduced} />
