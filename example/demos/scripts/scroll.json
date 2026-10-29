@@ -1,0 +1,10 @@
+{
+  "url": "../pages/docs.html",
+  "viewport": [1280, 800],
+  "steps": [
+    { "wait": 700 },
+    { "scroll": "#verify", "after": 1200 },
+    { "click": "[data-testid=copy]", "after": 1100 },
+    { "hover": "[data-testid=callout]", "at": [0.15, 0.5], "zoom": true, "after": 1500 }
+  ]
+}

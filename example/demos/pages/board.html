@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sprint 14</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, sans-serif; background: #fbfaf8; color: #22201c; }
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 28px; border-bottom: 1px solid #ece9e2; }
+  header h1 { font-size: 18px; margin: 0; flex: 1; }
+  .pill { font-size: 12px; background: #eef2ff; color: #3730a3; padding: 3px 10px; border-radius: 99px; }
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 24px 28px; }
+  .col h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #8a857a; margin: 0 0 12px; display: flex; justify-content: space-between; }
+  .stack { display: grid; gap: 10px; min-height: 300px; align-content: start; }
+  .card { background: #fff; border: 1px solid #ebe7de; border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: box-shadow .2s, transform .2s; }
+  .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,.07); }
+  .card .meta { display: flex; gap: 8px; margin-top: 8px; font-size: 12px; color: #8a857a; }
+  .lbl { padding: 1px 7px; border-radius: 5px; }
+  .bug { background: #fde8e4; color: #b4351d; } .feat { background: #e3f4ea; color: #19723f; } .chore { background: #efece5; color: #6b665b; }
+  .card.sel { outline: 2px solid #4f46e5; }
+  .card.moved { animation: drop .5s ease-out; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-10px) scale(.98); } }
+  aside { position: fixed; top: 0; right: 0; bottom: 0; width: 380px; background: #fff; border-left: 1px solid #ece9e2; box-shadow: -20px 0 50px rgba(0,0,0,.06); padding: 28px; transform: translateX(100%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  aside.open { transform: none; }
+  aside h3 { font-size: 20px; margin: 10px 0 8px; }
+  aside p { color: #5d5950; }
+  .done { font: inherit; margin-top: 18px; border: 0; background: #16a34a; color: #fff; padding: 10px 16px; border-radius: 9px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header><h1>Sprint 14</h1><span class="pill">6 days left</span></header>
+<div class="cols">
+  <section class="col"><h2>To do <span>3</span></h2><div class="stack">
+    <div class="card">Empty state for search<div class="meta"><span class="lbl feat">feature</span>LS</div></div>
+    <div class="card">Bump Node to 24<div class="meta"><span class="lbl chore">chore</span>JO</div></div>
+    <div class="card">Annual billing copy<div class="meta"><span class="lbl feat">feature</span>MR</div></div>
+  </div></section>
+  <section class="col"><h2>In progress <span>2</span></h2><div class="stack">
+    <div class="card" data-testid="flaky">Fix flaky checkout test<div class="meta"><span class="lbl bug">bug</span>JO</div></div>
+    <div class="card">Invite flow polish<div class="meta"><span class="lbl feat">feature</span>LS</div></div>
+  </div></section>
+  <section class="col"><h2>Done <span id="doneCount">2</span></h2><div class="stack" id="doneStack">
+    <div class="card">Dark mode tokens<div class="meta"><span class="lbl feat">feature</span>MR</div></div>
+    <div class="card">Sentry source maps<div class="meta"><span class="lbl chore">chore</span>JO</div></div>
+  </div></section>
+</div>
+<aside id="panel">
+  <span class="lbl bug">bug</span>
+  <h3>Fix flaky checkout test</h3>
+  <p>The payment step times out on slow CI runners. Wait for the Stripe frame instead of a fixed sleep.</p>
+  <button class="done" data-testid="mark-done">Move to Done</button>
+</aside>
+<script>
+  const card = document.querySelector("[data-testid=flaky]");
+  const panel = document.getElementById("panel");
+  card.onclick = () => { card.classList.add("sel"); panel.classList.add("open"); };
+  document.querySelector("[data-testid=mark-done]").onclick = () => {
+    panel.classList.remove("open");
+    card.classList.remove("sel");
+    card.classList.add("moved");
+    document.getElementById("doneStack").prepend(card);
+    document.getElementById("doneCount").textContent = "3";
+  };
+</script>
+</body>
+</html>

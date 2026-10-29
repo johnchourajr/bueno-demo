@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inbox</title>
+<style>
+  * { box-sizing: border-box; }
+  :root { --bg: #f7f7f5; --panel: #fff; --ink: #1d1d1b; --mute: #85837d; --line: #eae8e3; --hi: #f1efe9; }
+  .dark { --bg: #111214; --panel: #1a1b1f; --ink: #ecebe8; --mute: #8b8a86; --line: #2a2b30; --hi: #24252b; }
+  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--ink); transition: background .4s, color .4s; }
+  .app { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+  nav { border-right: 1px solid var(--line); padding: 20px 14px; transition: border-color .4s; }
+  nav div { padding: 7px 10px; border-radius: 7px; color: var(--mute); }
+  nav .on { background: var(--hi); color: var(--ink); }
+  section { padding: 22px 32px; }
+  .hint { float: right; color: var(--mute); font-size: 13px; }
+  kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; background: var(--panel); }
+  .mail { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); transition: border-color .4s; }
+  .mail b { width: 140px; } .mail span { color: var(--mute); }
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; align-items: start; justify-content: center; padding-top: 140px; }
+  .scrim.on { display: flex; animation: fade .15s ease-out; }
+  .pal { width: 560px; background: var(--panel); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.25); overflow: hidden; animation: rise .2s ease-out; }
+  .pal input { width: 100%; font: 17px system-ui; padding: 18px 20px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); outline: none; }
+  .pal div { padding: 11px 20px; display: flex; justify-content: space-between; color: var(--ink); }
+  .pal div.sel { background: var(--hi); }
+  .pal div[hidden] { display: none; }
+  @keyframes fade { from { opacity: 0; } } @keyframes rise { from { transform: translateY(8px) scale(.98); opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav><div class="on">Inbox</div><div>Starred</div><div>Sent</div><div>Archive</div></nav>
+  <section>
+    <span class="hint">Command menu <kbd>⌘K</kbd></span>
+    <h2 style="margin:0 0 14px">Inbox</h2>
+    <div class="mail"><b>Maya Rivera</b><span>Q3 numbers are in, and they look great</span></div>
+    <div class="mail"><b>Jonah Okafor</b><span>Re: the sync engine rollout plan</span></div>
+    <div class="mail"><b>Lena Strand</b><span>Design review moved to Thursday</span></div>
+    <div class="mail"><b>Billing</b><span>Your invoice for October</span></div>
+    <div class="mail"><b>Ravi Patel</b><span>Quick question about SSO</span></div>
+  </section>
+</div>
+<div class="scrim" id="scrim">
+  <div class="pal">
+    <input id="q" data-testid="palette-input" placeholder="Type a command…" autocomplete="off">
+    <div data-k="compose">Compose <span>C</span></div>
+    <div data-k="archive">Archive all read</div>
+    <div data-k="dark theme">Switch to dark theme</div>
+    <div data-k="settings">Open settings <span>,</span></div>
+  </div>
+</div>
+<script>
+  const scrim = document.getElementById("scrim");
+  const q = document.getElementById("q");
+  const items = [...document.querySelectorAll(".pal div")];
+  const visible = () => items.filter((i) => !i.hidden);
+  function filter() {
+    const v = q.value.toLowerCase();
+    items.forEach((i) => { i.hidden = !(i.textContent.toLowerCase() + i.dataset.k).includes(v); i.classList.remove("sel"); });
+    visible()[0]?.classList.add("sel");
+  }
+  q.addEventListener("input", filter);
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      scrim.classList.add("on");
+      q.value = "";
+      filter();
+      q.focus();
+    } else if (e.key === "Enter" && scrim.classList.contains("on")) {
+      if (visible()[0]?.dataset.k === "dark theme") document.documentElement.classList.toggle("dark");
+      scrim.classList.remove("on");
+    } else if (e.key === "Escape") scrim.classList.remove("on");
+  });
+</script>
+</body>
+</html>

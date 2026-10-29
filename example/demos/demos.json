@@ -1,0 +1,72 @@
+[
+  {
+    "id": "defaults",
+    "title": "Out of the box",
+    "option": "no flags",
+    "blurb": "Edge to edge at 1920×1200, a 1.6× zoom toward each click and a spring-smoothed cursor. Three steps, nothing else set.",
+    "flags": []
+  },
+  {
+    "id": "matte",
+    "title": "Framed on a matte",
+    "option": "--matte",
+    "blurb": "The page sits in a rounded window on a colour of your choosing, with an even border and a soft shadow.",
+    "flags": ["--matte", "#e4ddd0"]
+  },
+  {
+    "id": "zoom",
+    "title": "A closer camera",
+    "option": "--zoom 2.4",
+    "blurb": "Small targets read better closer in. Clicks close together share one shot, so the camera pans across the toolbar instead of bouncing.",
+    "flags": ["--zoom", "2.4"]
+  },
+  {
+    "id": "camera",
+    "title": "Directing the camera",
+    "option": "zoom: false / hover",
+    "blurb": "Tab clicks set zoom: false so the whole chart stays in frame as it changes. Hovers with zoom: true point the camera at a tooltip without clicking.",
+    "flags": ["--matte", "#0b0d11"]
+  },
+  {
+    "id": "say",
+    "title": "Captions by the cursor",
+    "option": "say",
+    "blurb": "A step's say line rides beside the cursor until the next step changes it. setup fills the expiry and CVC before recording starts.",
+    "flags": []
+  },
+  {
+    "id": "branded",
+    "title": "Title, end card and brand",
+    "option": "--title / --end-cap / --brand",
+    "blurb": "A lower-third title opens the take and an end card closes it. The brand file sets the ink, paper, ripple colour, display font, logo and footer.",
+    "flags": ["--title", "Annual billing", "--kicker", "Pricing", "--end-cap", "--brand", "brand.json"]
+  },
+  {
+    "id": "speed",
+    "title": "Slow motion",
+    "option": "--speed 0.75",
+    "blurb": "Keyboard-driven UI moves fast. Playing at 0.75× slows the take, the cursor and the camera together, so the command palette has time to land.",
+    "flags": ["--speed", "0.75"]
+  },
+  {
+    "id": "mobile",
+    "title": "A phone-width take",
+    "option": "--fit",
+    "blurb": "A 390×844 viewport renders at its own portrait shape instead of being letterboxed into 1920×1200. A matte frames it like a device.",
+    "flags": ["--fit", "--matte", "#e8dccd"]
+  },
+  {
+    "id": "scroll",
+    "title": "Scrolling a long page",
+    "option": "scroll / at",
+    "blurb": "A scroll step glides the section into view on camera. A hover aims at a point inside its target with at: [fx, fy] rather than the centre.",
+    "flags": []
+  },
+  {
+    "id": "gif",
+    "title": "A GIF for the README",
+    "option": "--gif / --hold",
+    "blurb": "upload attaches a file to a drop zone. --gif writes a 960px, 15fps GIF beside the MP4, and --hold rests on the last frame for a beat.",
+    "flags": ["--gif", "--hold", "1.2", "--matte", "#ddd6f3"]
+  }
+]

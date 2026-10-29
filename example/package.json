@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "format:check": "prettier --check src"
+    "format:check": "prettier --check src",
+    "demos": "node scripts/build-demos.mjs"
   },
   "dependencies": {
     "@bueno-dev/type": "^1.1.10",
