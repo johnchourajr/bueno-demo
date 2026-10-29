@@ -49,7 +49,7 @@
     "remotion": "4.0.535"
   },
   "devDependencies": {
-    "@remotion/cli": "4.0.535",
+    "@remotion/cli": "4.0.539",
     "@types/node": "^22.20.5",
     "@types/react": "^19.2.0",
     "typescript": "^5.9.0"
