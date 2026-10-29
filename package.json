@@ -18,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/johnchourajr/bueno-screen-demo.git"
   },
-  "homepage": "https://screen-demo.muybuen.dev",
+  "homepage": "https://screen-demo.oss.bueno.enterprises",
   "type": "module",
   "bin": {
     "bueno-screen-demo": "bin/bueno-screen-demo.mjs"

@@ -1,8 +1,8 @@
 # bueno-screen-demo
 
-[![Bueno/Screen-Demo: agent-created product demo videos from a JSON script](example/public/og.png)](https://screen-demo.muybuen.dev)
+[![Bueno/Screen-Demo: agent-created product demo videos from a JSON script](example/public/og.png)](https://screen-demo.oss.bueno.enterprises)
 
-[![npm](https://img.shields.io/npm/v/@bueno-dev/screen-demo)](https://www.npmjs.com/package/@bueno-dev/screen-demo) · [screen-demo.muybuen.dev](https://screen-demo.muybuen.dev)
+[![npm](https://img.shields.io/npm/v/@bueno-dev/screen-demo)](https://www.npmjs.com/package/@bueno-dev/screen-demo) · [screen-demo.oss.bueno.enterprises](https://screen-demo.oss.bueno.enterprises)
 
 > Have you ever shipped a feature you were proud of, sat down to record a quick demo, and lost an hour to a screen recorder? Nudging zoom keyframes, redoing the take because your cursor wandered, redoing it again because the UI changed the next morning? Well today is your lucky day. Meet `bueno-screen-demo`: you write the demo once, and it records itself.
 
