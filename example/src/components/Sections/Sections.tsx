@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GlobalHeaderCopyButton } from "../GlobalHeader/GlobalHeaderCopyButton";
 import { SliceWrapper } from "../SliceWrapper";
 import { credits, flags, steps } from "./content";
@@ -47,6 +48,13 @@ export function Flags() {
             <span className="text-body text-primary">{row.does}</span>
           </div>
         ))}
+        <Link
+          href="/demos"
+          data-testid="flags-demos"
+          className="border-t-1 border-dotted border-primary25 py-3 text-string text-primary hover:text-primary60"
+        >
+          See ten of them in action / demos →
+        </Link>
       </div>
     </SliceWrapper>
   );
@@ -85,6 +93,9 @@ export function Credits() {
         <a href="https://john.design" className="hover:text-primary">
           John.design
         </a>
+        <Link href="/demos" className="hover:text-primary">
+          Demos
+        </Link>
         <span>© 2026 / MIT licensed</span>
         <a
           href="https://www.npmjs.com/package/@bueno-dev/screen-demo"

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortado</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.45 system-ui, sans-serif; background: #f6efe6; color: #2a1d14; }
+  .hero { height: 300px; background: radial-gradient(circle at 50% 60%, #c48a5a 0 70px, #8a5a36 71px 92px, #f0e2d1 93px); position: relative; }
+  .hero .bag { position: absolute; top: 18px; right: 18px; width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 18px; }
+  .hero .n { position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; border-radius: 50%; background: #c2410c; color: #fff; font-size: 12px; display: none; place-items: center; }
+  .hero .n.on { display: grid; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
+  .body { padding: 24px 22px; }
+  h1 { margin: 0; font-size: 28px; }
+  .sub { color: #8a7563; margin: 2px 0 22px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #8a7563; margin: 0 0 10px; }
+  .sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .sizes button { font: inherit; padding: 14px 0; border-radius: 14px; border: 1.5px solid #e6d8c7; background: #fff; cursor: pointer; }
+  .sizes button[aria-pressed=true] { border-color: #2a1d14; background: #2a1d14; color: #fff; }
+  .opt { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .switch { width: 50px; height: 30px; border-radius: 15px; background: #e6d8c7; border: 0; position: relative; cursor: pointer; transition: background .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch[aria-checked=true] { background: #15803d; } .switch[aria-checked=true]::after { transform: translateX(20px); }
+  .add { position: fixed; left: 22px; right: 22px; bottom: 28px; font: 600 17px system-ui; padding: 17px; border: 0; border-radius: 16px; background: #c2410c; color: #fff; cursor: pointer; display: flex; justify-content: space-between; }
+  @keyframes pop { from { transform: scale(0); } }
+</style>
+</head>
+<body>
+<div class="hero"><div class="bag">🛍<span class="n" id="n">1</span></div></div>
+<div class="body">
+  <h1>Cortado</h1>
+  <p class="sub">Equal parts espresso and steamed milk.</p>
+  <h2>Size</h2>
+  <div class="sizes">
+    <button data-testid="small" aria-pressed="true">Small</button>
+    <button data-testid="medium" aria-pressed="false">Medium</button>
+    <button data-testid="large" aria-pressed="false">Large</button>
+  </div>
+  <h2>Extras</h2>
+  <div class="opt"><span>Oat milk</span><button class="switch" data-testid="oat" role="switch" aria-checked="false"></button></div>
+  <div class="opt"><span>Extra shot</span><button class="switch" role="switch" aria-checked="false"></button></div>
+</div>
+<button class="add" data-testid="add"><span>Add to order</span><span id="price">$4.20</span></button>
+<script>
+  const sizes = document.querySelectorAll(".sizes button");
+  const base = { small: 4.2, medium: 4.8, large: 5.4 };
+  const price = () => {
+    let p = base[document.querySelector(".sizes [aria-pressed=true]").dataset.testid];
+    document.querySelectorAll(".switch[aria-checked=true]").forEach(() => p += 0.6);
+    document.getElementById("price").textContent = `$${p.toFixed(2)}`;
+  };
+  sizes.forEach((b) => b.onclick = () => { sizes.forEach((o) => o.setAttribute("aria-pressed", o === b)); price(); });
+  document.querySelectorAll(".switch").forEach((s) => s.onclick = () => { s.setAttribute("aria-checked", s.getAttribute("aria-checked") !== "true"); price(); });
+  document.querySelector(".add").onclick = (e) => {
+    document.getElementById("n").classList.add("on");
+    e.currentTarget.firstElementChild.textContent = "Added ✓";
+  };
+</script>
+</body>
+</html>

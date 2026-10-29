@@ -1,0 +1,11 @@
+{
+  "url": "../pages/palette.html",
+  "viewport": [1280, 800],
+  "cursorStart": [900, 520],
+  "steps": [
+    { "wait": 600 },
+    { "press": "ControlOrMeta+K", "after": 700 },
+    { "type": "[data-testid=palette-input]", "text": "dark", "delay": 90, "after": 700 },
+    { "press": "Enter", "after": 1600 }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "../pages/mobile.html",
+  "viewport": [390, 844],
+  "steps": [
+    { "wait": 900 },
+    { "click": "[data-testid=medium]", "after": 700 },
+    { "click": "[data-testid=oat]", "after": 800 },
+    { "click": "[data-testid=add]", "after": 1600 }
+  ]
+}

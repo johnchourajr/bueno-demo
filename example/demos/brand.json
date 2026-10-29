@@ -1,0 +1,8 @@
+{
+  "ink": "#ff3b2f",
+  "paper": "#0b0b0b",
+  "accent": "rgba(255, 59, 47, 0.4)",
+  "displayFont": { "family": "GoshaSans", "file": "../src/fonts/PPGoshaSans-Ultrabold.woff2", "weight": "800" },
+  "logo": "../src/app/icon.svg",
+  "footer": "screen-demo.oss.bueno.enterprises"
+}

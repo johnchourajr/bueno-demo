@@ -1,0 +1,9 @@
+{
+  "url": "../pages/pricing.html",
+  "viewport": [1280, 800],
+  "steps": [
+    { "wait": 1200 },
+    { "click": "[data-testid=annual]", "after": 1400 },
+    { "click": "[data-testid=start-pro]", "after": 1600 }
+  ]
+}

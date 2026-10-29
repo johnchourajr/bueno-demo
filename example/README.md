@@ -9,3 +9,12 @@ pnpm build    # static export to out/
 ```
 
 The hero renders with WebGPU, then WebGL2, then Canvas 2D, whichever the browser starts first. With reduced motion on it becomes a still storyboard instead. Its source frame is drawn in a canvas for now (`src/components/DrosteHero/scenes.ts`); the plan is to swap it for a recording of the site made with the CLI.
+
+## Demos
+
+`/demos` shows ten takes, each turning one option. Their scripts, the small pages they record and the brand file live in `demos/`, and `demos/demos.json` lists each take's render flags; the page reads the same list. The clips are committed to `public/takes/` (not `public/demos/`, which would sit beside the page in a static export). To record them again with the CLI from the repo root (`pnpm install` there first):
+
+```bash
+pnpm demos              # all ten
+pnpm demos zoom say     # just these
+```

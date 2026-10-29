@@ -1,0 +1,10 @@
+{
+  "url": "../pages/dashboard.html",
+  "viewport": [1280, 800],
+  "steps": [
+    { "click": "[data-testid=r30]", "zoom": false, "after": 1400 },
+    { "hover": "[data-testid=bar-4]", "zoom": true, "after": 1200 },
+    { "hover": "[data-testid=bar-6]", "zoom": true, "after": 1400 },
+    { "click": "[data-testid=r90]", "zoom": false, "after": 1600 }
+  ]
+}

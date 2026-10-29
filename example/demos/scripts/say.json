@@ -1,0 +1,11 @@
+{
+  "url": "../pages/checkout.html",
+  "viewport": [1280, 800],
+  "setup": "document.querySelector('[data-testid=exp]').value = '12 / 28'; document.querySelector('[data-testid=cvc]').value = '314';",
+  "steps": [
+    { "wait": 900 },
+    { "click": "[data-testid=yearly]", "after": 1100, "say": "Yearly saves 20%" },
+    { "type": "[data-testid=card]", "text": "4242 4242 4242 4242", "delay": 35, "after": 700, "say": "Add a card" },
+    { "click": "[data-testid=pay]", "after": 1600, "say": "Pay, and you're on Team" }
+  ]
+}

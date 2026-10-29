@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Import</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 19px/1.5 system-ui, sans-serif; background: #f3f1fb; color: #1d1a2e; }
+  main { max-width: 820px; margin: 110px auto; background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 16px 50px rgba(60,40,120,.08); }
+  h1 { font-size: 30px; margin: 0 0 4px; } .sub { color: #77738a; margin: 0 0 22px; }
+  .drop { display: grid; place-items: center; height: 220px; border: 2px dashed #cfc8ea; border-radius: 14px; color: #6d5fc7; cursor: pointer; transition: background .2s; }
+  .drop:hover { background: #f8f6ff; }
+  .drop input { display: none; }
+  .file { display: none; align-items: center; gap: 14px; margin-top: 18px; padding: 14px; border: 1px solid #ece9f6; border-radius: 12px; }
+  .file.on { display: flex; animation: in .35s ease-out; }
+  .ic { width: 40px; height: 40px; border-radius: 9px; background: #e9fbe9; color: #15803d; display: grid; place-items: center; font: 700 11px system-ui; }
+  .meta { flex: 1; } .meta small { color: #8a87a0; }
+  .track { height: 6px; background: #efedf7; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: #6d5fc7; transition: width 1.4s cubic-bezier(.3,.7,.3,1); }
+  .go { margin-top: 20px; width: 100%; font: 600 19px system-ui; padding: 15px; border-radius: 11px; border: 0; background: #d9d4ee; color: #fff; }
+  .go.ready { background: #6d5fc7; cursor: pointer; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Import contacts</h1>
+  <p class="sub">CSV with a header row. We'll match the columns for you.</p>
+  <label class="drop" data-testid="drop">Drop a CSV here, or click to browse<input type="file" accept=".csv"></label>
+  <div class="file" id="file">
+    <span class="ic">CSV</span>
+    <div class="meta"><b id="name"></b> <small id="rows"></small><div class="track"><div class="fill" id="fill"></div></div></div>
+  </div>
+  <button class="go" data-testid="import" id="go">Import</button>
+</main>
+<script>
+  // The label opens a file picker on click; the take attaches a file instead.
+  document.querySelector(".drop").addEventListener("click", (e) => e.preventDefault());
+  document.querySelector(".drop input").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    const rows = (await f.text()).trim().split("\n").length - 1;
+    document.getElementById("name").textContent = f.name;
+    document.getElementById("rows").textContent = `${rows} contacts`;
+    document.getElementById("file").classList.add("on");
+    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById("fill").style.width = "100%"));
+    setTimeout(() => document.getElementById("go").classList.add("ready"), 1400);
+  });
+  document.getElementById("go").onclick = (e) => {
+    if (!e.target.classList.contains("ready")) return;
+    e.target.textContent = "Imported ✓";
+  };
+</script>
+</body>
+</html>

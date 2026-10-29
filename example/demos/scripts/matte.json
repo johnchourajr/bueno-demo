@@ -1,0 +1,9 @@
+{
+  "url": "../pages/board.html",
+  "viewport": [1280, 800],
+  "steps": [
+    { "wait": 900 },
+    { "click": "[data-testid=flaky]", "after": 1300 },
+    { "click": "[data-testid=mark-done]", "after": 1600 }
+  ]
+}

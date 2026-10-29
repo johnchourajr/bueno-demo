@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Docs / Webhooks</title>
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 40px; }
+  body { margin: 0; font: 16px/1.7 system-ui, sans-serif; background: #fff; color: #1e2330; }
+  .wrap { display: grid; grid-template-columns: 240px 1fr; max-width: 1100px; margin: 0 auto; }
+  nav { position: sticky; top: 0; height: 100vh; padding: 40px 24px; border-right: 1px solid #eef0f4; font-size: 14px; }
+  nav a { display: block; color: #5b6478; text-decoration: none; padding: 5px 0; }
+  nav a.on { color: #4338ca; font-weight: 600; }
+  article { padding: 40px 56px 400px; max-width: 760px; }
+  h1 { font-size: 34px; margin: 0 0 10px; } h2 { margin: 48px 0 10px; font-size: 22px; }
+  p { color: #48506a; }
+  .box { height: 150px; border-radius: 12px; background: repeating-linear-gradient(135deg, #f5f6fa 0 12px, #eff1f7 12px 24px); margin: 18px 0; }
+  pre { position: relative; background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 20px 22px; font: 14px/1.7 ui-monospace, monospace; overflow: hidden; }
+  pre .k { color: #c4b5fd; } pre .s { color: #86efac; }
+  .copy { position: absolute; top: 12px; right: 12px; font: 12px system-ui; color: #cbd5e1; background: #1e293b; border: 1px solid #334155; padding: 4px 10px; border-radius: 7px; cursor: pointer; }
+  .copy.on { color: #86efac; border-color: #166534; }
+  .callout { border-left: 3px solid #4338ca; background: #f5f5ff; padding: 12px 16px; border-radius: 0 10px 10px 0; color: #3b3f73; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a>Introduction</a><a>Authentication</a><a class="on">Webhooks</a><a>Events</a><a>Retries</a><a>Errors</a>
+  </nav>
+  <article>
+    <h1>Webhooks</h1>
+    <p>Webhooks tell your server when something happens in your workspace: a payment settles, a member joins, a file finishes processing.</p>
+    <div class="box"></div>
+    <h2>Endpoints</h2>
+    <p>Add an endpoint in Settings → Developers. Each endpoint picks the events it listens to, and gets its own signing secret.</p>
+    <div class="box"></div>
+    <h2>Payloads</h2>
+    <p>Every delivery is a POST with a JSON body. The type field names the event; data holds the object as it was when the event happened.</p>
+    <div class="box"></div>
+    <h2 id="verify">Verifying signatures</h2>
+    <p>Check the signature header before trusting a payload. The SDK does it in one call:</p>
+    <pre data-testid="snippet"><button class="copy" data-testid="copy">Copy</button><span class="k">import</span> { verify } <span class="k">from</span> <span class="s">"@northwind/sdk"</span>;
+
+<span class="k">const</span> event = verify(body, headers[<span class="s">"x-northwind-signature"</span>], secret);
+<span class="k">if</span> (event.type === <span class="s">"payment.settled"</span>) fulfil(event.data);</pre>
+    <p class="callout" data-testid="callout">Reject anything older than five minutes to block replays.</p>
+    <h2>Retries</h2>
+    <p>Failed deliveries retry with backoff for three days.</p>
+  </article>
+</div>
+<script>
+  document.querySelector(".copy").onclick = (e) => { e.target.classList.add("on"); e.target.textContent = "Copied ✓"; };
+</script>
+</body>
+</html>

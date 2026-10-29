@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Members</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 17px/1.5 system-ui, sans-serif; background: #f4f3ef; color: #1b1a17; }
+  main { max-width: 900px; margin: 80px auto; }
+  h1 { font-size: 32px; margin: 0 0 4px; }
+  .sub { color: #77736a; margin: 0 0 28px; }
+  .card { background: #fff; border-radius: 14px; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 8px 30px rgba(0,0,0,.05); padding: 24px; margin-bottom: 20px; }
+  .invite { display: flex; gap: 10px; align-items: center; }
+  input { flex: 1; font: inherit; padding: 10px 12px; border: 1px solid #dcd8ce; border-radius: 9px; }
+  .roles { display: flex; background: #f0eee8; border-radius: 9px; padding: 3px; }
+  .roles button { font: inherit; border: 0; background: none; padding: 7px 12px; border-radius: 7px; color: #6b675e; cursor: pointer; }
+  .roles button[aria-pressed=true] { background: #fff; color: #1b1a17; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .send { font: inherit; border: 0; background: #2b59c3; color: #fff; padding: 10px 18px; border-radius: 9px; cursor: pointer; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #efede7; }
+  li:first-child { border-top: 0; }
+  .av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 13px; }
+  .who { flex: 1; } .who small { display: block; color: #8a867c; }
+  .tag { font-size: 13px; color: #6b675e; background: #f0eee8; padding: 3px 9px; border-radius: 99px; }
+  .new { animation: in .45s ease-out; }
+  .new .tag { background: #fff3d6; color: #8a5a00; }
+  @keyframes in { from { opacity: 0; transform: translateY(-6px); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Members</h1>
+  <p class="sub">Invite people to the Northwind workspace.</p>
+  <div class="card invite">
+    <input id="email" data-testid="email" placeholder="name@company.com">
+    <div class="roles" role="group">
+      <button data-testid="role-viewer" aria-pressed="true">Viewer</button>
+      <button data-testid="role-editor" aria-pressed="false">Editor</button>
+      <button data-testid="role-admin" aria-pressed="false">Admin</button>
+    </div>
+    <button class="send" data-testid="send">Send invite</button>
+  </div>
+  <div class="card">
+    <ul id="list">
+      <li><span class="av" style="background:#c2410c">MR</span><span class="who">Maya Rivera<small>maya@northwind.co</small></span><span class="tag">Admin</span></li>
+      <li><span class="av" style="background:#0f766e">JO</span><span class="who">Jonah Okafor<small>jonah@northwind.co</small></span><span class="tag">Editor</span></li>
+      <li><span class="av" style="background:#6d28d9">LS</span><span class="who">Lena Strand<small>lena@northwind.co</small></span><span class="tag">Viewer</span></li>
+    </ul>
+  </div>
+</main>
+<script>
+  const roles = document.querySelectorAll(".roles button");
+  roles.forEach((b) => b.onclick = () => roles.forEach((o) => o.setAttribute("aria-pressed", o === b)));
+  document.querySelector(".send").onclick = () => {
+    const email = document.getElementById("email").value || "someone@northwind.co";
+    const role = document.querySelector(".roles [aria-pressed=true]").textContent;
+    const li = document.createElement("li");
+    li.className = "new";
+    li.innerHTML = `<span class="av" style="background:#2b59c3">${email.slice(0, 2).toUpperCase()}</span><span class="who">${email}<small>Invite sent just now</small></span><span class="tag">${role} · pending</span>`;
+    document.getElementById("list").prepend(li);
+    document.getElementById("email").value = "";
+  };
+</script>
+</body>
+</html>

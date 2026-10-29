@@ -1,0 +1,11 @@
+{
+  "url": "../pages/editor.html",
+  "viewport": [1280, 800],
+  "steps": [
+    { "wait": 900 },
+    { "eval": "selectPhrase('under a second')", "after": 500 },
+    { "click": "[data-testid=bold]", "after": 600 },
+    { "click": "[data-testid=hl-yellow]", "after": 600 },
+    { "click": "[data-testid=comment]", "after": 1600 }
+  ]
+}
