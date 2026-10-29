@@ -126,15 +126,21 @@ function Take({
   const scale = Math.min((width - pad * 2) / viewport.width, (height - pad * 2) / viewport.height);
   const winW = viewport.width * scale;
   const winH = viewport.height * scale;
+  // The window's corner in the frame, at rest.
+  const ox = (width - winW) / 2;
+  const oy = (height - winH) / 2;
 
+  // The camera moves over the whole canvas, matte and all, so a zoom grows the
+  // window past the frame rather than cropping inside it. It stops at the
+  // canvas edge; without a matte, that's the page's edge.
   const { amount, focus } = camera(t, groups);
   const z = 1 + (zoom - 1) * amount;
-  const half = { x: viewport.width / (2 * z), y: viewport.height / (2 * z) };
+  const half = { x: width / (2 * z), y: height / (2 * z) };
   const f = focus ?? { x: viewport.width / 2, y: viewport.height / 2 };
-  const cx = Math.min(Math.max(f.x, half.x), viewport.width - half.x);
-  const cy = Math.min(Math.max(f.y, half.y), viewport.height - half.y);
-  const tx = viewport.width / 2 - cx * z;
-  const ty = viewport.height / 2 - cy * z;
+  const cx = Math.min(Math.max(ox + f.x * scale, half.x), width - half.x);
+  const cy = Math.min(Math.max(oy + f.y * scale, half.y), height - half.y);
+  const tx = width / 2 - cx * z;
+  const ty = height / 2 - cy * z;
 
   // Computed once per take, not every frame.
   const path = useMemo(
@@ -161,61 +167,65 @@ function Take({
   const shown = lastSay?.text
     ? interpolate(sinceSay, [0, SAY_IN], [0, 1], { extrapolateRight: "clamp", easing: ease })
     : interpolate(sinceSay, [0, SAY_OUT], [1, 0], { extrapolateRight: "clamp", easing: ease });
-  // Where the cursor sits in the window, so the bubble stays one size through the zoom.
-  const tip = { x: (tx + cursor.x * z) * scale, y: (ty + cursor.y * z) * scale };
+  // Where the cursor sits in the frame, so the bubble stays one size through the zoom.
+  const tip = { x: tx + (ox + cursor.x * scale) * z, y: ty + (oy + cursor.y * scale) * z };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: matte ?? "#000", alignItems: "center", justifyContent: "center" }}>
-      <div
-        style={{
-          width: winW,
-          height: winH,
-          overflow: "hidden",
-          position: "relative",
-          ...(matte && {
-            borderRadius: 18,
-            boxShadow: "0 30px 80px rgba(40, 30, 10, 0.18), 0 0 0 1px rgba(0,0,0,0.06)",
-          }),
-        }}
-      >
+    <AbsoluteFill style={{ backgroundColor: matte ?? "#000" }}>
+      <AbsoluteFill style={{ transformOrigin: "0 0", transform: `translate(${tx}px, ${ty}px) scale(${z})` }}>
         <div
           style={{
-            width: viewport.width,
-            height: viewport.height,
-            transformOrigin: "0 0",
-            transform: `scale(${scale}) translate(${tx}px, ${ty}px) scale(${z})`,
-            position: "relative",
+            position: "absolute",
+            left: ox,
+            top: oy,
+            width: winW,
+            height: winH,
+            overflow: "hidden",
+            ...(matte && {
+              borderRadius: 18,
+              boxShadow: "0 30px 80px rgba(40, 30, 10, 0.18), 0 0 0 1px rgba(0,0,0,0.06)",
+            }),
           }}
         >
-          <OffthreadVideo
-            src={staticFile(video)}
-            startFrom={Math.round(startAt * fps)}
-            playbackRate={speed}
-            muted
-            // Fill the page's box exactly: the recording is at 2x.
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }}
-          />
-          {ripple !== null && lastClick && (
-            <div
-              style={{
-                position: "absolute",
-                left: lastClick.x,
-                top: lastClick.y,
-                width: 44,
-                height: 44,
-                marginLeft: -22,
-                marginTop: -22,
-                borderRadius: "50%",
-                background: brand.accent,
-                transform: `scale(${0.3 + ripple * 1.2})`,
-                opacity: 1 - ripple,
-              }}
+          <div
+            style={{
+              width: viewport.width,
+              height: viewport.height,
+              transformOrigin: "0 0",
+              transform: `scale(${scale})`,
+              position: "relative",
+            }}
+          >
+            <OffthreadVideo
+              src={staticFile(video)}
+              startFrom={Math.round(startAt * fps)}
+              playbackRate={speed}
+              muted
+              // Fill the page's box exactly: the recording is at 2x.
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }}
             />
-          )}
-          <Cursor x={cursor.x} y={cursor.y} press={press} />
+            {ripple !== null && lastClick && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: lastClick.x,
+                  top: lastClick.y,
+                  width: 44,
+                  height: 44,
+                  marginLeft: -22,
+                  marginTop: -22,
+                  borderRadius: "50%",
+                  background: brand.accent,
+                  transform: `scale(${0.3 + ripple * 1.2})`,
+                  opacity: 1 - ripple,
+                }}
+              />
+            )}
+            <Cursor x={cursor.x} y={cursor.y} press={press} />
+          </div>
         </div>
-        {line && shown > 0 && <Bubble text={line} at={tip} shown={shown} room={winW} size={width} brand={brand} />}
-      </div>
+      </AbsoluteFill>
+      {line && shown > 0 && <Bubble text={line} at={tip} shown={shown} room={width} size={width} brand={brand} />}
     </AbsoluteFill>
   );
 }
