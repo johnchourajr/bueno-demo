@@ -136,7 +136,11 @@ export function LiveStage({
 
     let previous = performance.now();
     const frame = (now: number) => {
-      if (stopped || !renderer || !canvas) return;
+      // On unmount React clears the refs before this effect's cleanup stops
+      // the loop, so a frame can land between the two.
+      const narrator = narratorRef.current;
+      const ripple = rippleRef.current;
+      if (stopped || !renderer || !canvas || !narrator || !ripple) return;
       const dt = now - previous;
       previous = now;
       const current = sceneRef.current;
@@ -169,7 +173,6 @@ export function LiveStage({
       const [sx, sy] = project(view.cursor, view.camera);
       const px = sx * stage.clientWidth;
       const py = sy * stage.clientHeight;
-      const narrator = narratorRef.current!;
       narrator.style.transform = `translate(${px}px, ${py}px)`;
       // Flip the bubble to the cursor's left when it would run off the stage.
       const bubble = narrator.lastElementChild as HTMLElement;
@@ -177,7 +180,6 @@ export function LiveStage({
         px + 30 + bubble.offsetWidth > stage.clientWidth,
       );
       if (view.clicked) {
-        const ripple = rippleRef.current!;
         // The translate property, not transform: the ripple animates scale, and
         // CSS applies a transform inside the scale, which would scale the position too.
         ripple.style.translate = `${px}px ${py}px`;
