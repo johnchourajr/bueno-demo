@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Narrator } from "./Narrator";
 import { startRenderer, type Renderer } from "./renderers";
 import { project, SOURCE_H, SOURCE_W, type Scene } from "./scenes";
@@ -21,7 +21,7 @@ const SETTLE_MS = 400;
 const REST_BLUR = 1;
 
 /** The small all-caps chips over the stage. */
-const LABEL = "rounded-sm bg-black px-2 py-1 text-string text-primary";
+const LABEL = "rounded-xs bg-black px-2 py-1 text-string text-primary";
 
 type LiveStageProps = {
   scene: Scene;
@@ -54,17 +54,20 @@ export function LiveStage({
   const rippleRef = useRef<HTMLSpanElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
 
-  // The frame loop reads these without restarting.
+  // The frame loop reads these without restarting. They catch up after each
+  // render commits, before the next frame can read them.
   const sceneRef = useRef(scene);
   const pausedRef = useRef(paused);
   const onStepRef = useRef(onStep);
   const onToggleRef = useRef(onToggle);
   const ditherRef = useRef(ditherAtRest);
-  sceneRef.current = scene;
-  pausedRef.current = paused;
-  onStepRef.current = onStep;
-  onToggleRef.current = onToggle;
-  ditherRef.current = ditherAtRest;
+  useLayoutEffect(() => {
+    sceneRef.current = scene;
+    pausedRef.current = paused;
+    onStepRef.current = onStep;
+    onToggleRef.current = onToggle;
+    ditherRef.current = ditherAtRest;
+  });
 
   const [step, setStep] = useState(0);
 
@@ -228,7 +231,7 @@ export function LiveStage({
       ref={stageRef}
       data-testid={testId}
       aria-label={scene.label}
-      className="relative aspect-[16/10] w-full touch-pan-y overflow-hidden rounded-md border-1 border-primary60 bg-black cursor-pointer select-none"
+      className="relative aspect-16/10 w-full touch-pan-y overflow-hidden rounded-md border border-primary60 bg-black cursor-pointer select-none"
     >
       <div ref={hostRef} className="absolute inset-0" />
       <span
@@ -251,7 +254,7 @@ export function LiveStage({
       )}
       <div className="absolute bottom-2 left-3 right-3 z-30 flex flex-wrap justify-between gap-2 pointer-events-none">
         {/* The narrator's bubble is hidden on phones, so the line shows here. */}
-        <span className="md:hidden rounded-sm bg-black px-2 py-1 text-caption text-primary">
+        <span className="md:hidden rounded-xs bg-black px-2 py-1 text-caption text-primary">
           {current.say}
         </span>
       </div>

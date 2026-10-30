@@ -54,14 +54,14 @@ export function DrosteHero() {
           )}
         </div>
 
-        <aside className="col-span-full md:col-span-2 flex flex-col rounded-md border-1 border-dotted border-primary60 min-w-0">
+        <aside className="col-span-full md:col-span-2 flex flex-col rounded-md border border-dotted border-primary60 min-w-0">
           <ScriptPanel
             file="capture.json"
             script={heroScript}
             active={active}
             onPick={reduced ? setActive : undefined}
           />
-          <div className="flex flex-wrap items-center gap-3 border-t-1 border-dotted border-primary25 p-4">
+          <div className="flex flex-wrap items-center gap-3 border-t border-dotted border-primary25 p-4">
             {!reduced && (
               <PlayButton
                 playing={!paused}

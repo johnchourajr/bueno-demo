@@ -6,7 +6,7 @@
     "dev": "next dev --port 3007",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --max-warnings 0",
+    "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check src",
     "demos": "node scripts/build-demos.mjs"
@@ -20,15 +20,17 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "^26.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@webgpu/types": "0.1.74",
     "eslint": "10.13.0",
     "eslint-config-next": "16.4.3",
     "postcss": "^8",
     "prettier": "^3.9.10",
     "tailwindcss": "4.3.3",
-    "typescript": "^7.0.0"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

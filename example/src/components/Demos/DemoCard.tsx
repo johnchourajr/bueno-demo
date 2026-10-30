@@ -61,10 +61,10 @@ export function DemoCard({ demo, index, files }: DemoCardProps) {
         </code>
       </div>
       <p className="text-body text-primary">{demo.blurb}</p>
-      <pre className="overflow-x-auto rounded-sm border-0.5 border-dashed border-primary60 p-3 font-mono text-caption text-primary">
+      <pre className="overflow-x-auto rounded-xs border-0.5 border-dashed border-primary60 p-3 font-mono text-caption text-primary">
         {`bueno-screen-demo capture ${demo.id}.json take\n${render}`}
       </pre>
-      <details className="group rounded-sm border-0.5 border-dashed border-primary25">
+      <details className="group rounded-xs border-0.5 border-dashed border-primary25">
         <summary
           data-testid={`demo-script-${demo.id}`}
           className="cursor-pointer list-none p-3 text-string text-primary60 hover:text-primary"
@@ -107,8 +107,8 @@ const media = (playing: boolean) =>
  */
 const stage = (playing: boolean) =>
   clsx(
-    "relative aspect-[16/10] overflow-hidden rounded-md bg-black",
-    "after:pointer-events-none after:absolute after:inset-0 after:rounded-md after:border-1 after:content-['']",
+    "relative aspect-16/10 overflow-hidden rounded-md bg-black",
+    "after:pointer-events-none after:absolute after:inset-0 after:rounded-md after:border after:content-['']",
     playing
       ? "after:border-solid after:border-primary"
       : "after:border-dotted after:border-primary60",
@@ -181,7 +181,7 @@ function VideoStage({ demo, playing, onToggle }: StageProps) {
           style={{ scaleX: progress }}
         />
       </div>
-      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
+      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-xs">
         <PlayButton
           playing={playing}
           onToggle={onToggle}
@@ -204,7 +204,7 @@ function GifStage({ demo, playing, onToggle }: StageProps) {
         unoptimized
         className={clsx("object-contain", media(playing))}
       />
-      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-sm">
+      <div className="absolute bottom-3 right-3 bg-black90 backdrop-blur-md rounded-xs">
         <PlayButton
           playing={playing}
           onToggle={onToggle}

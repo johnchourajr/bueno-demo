@@ -81,7 +81,7 @@ export function GlobalHeader() {
             variants={variants}
             animate={scrolled ? "hidden" : "initial"}
           >
-            <div className="col-span-full border-b-1 pb-3 border-[--color-primary]">
+            <div className="col-span-full border-b pb-3 border-(--color-primary)">
               <h1 className="uppercase text-string ">@bueno-dev/screen-demo</h1>
             </div>
             <div className="col-span-full">
