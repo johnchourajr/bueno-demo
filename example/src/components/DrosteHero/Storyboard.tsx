@@ -69,7 +69,7 @@ export function Storyboard({
   return (
     <div
       data-testid={testId}
-      className="relative aspect-[16/10] w-full overflow-hidden rounded-md border-1 border-primary60 bg-black"
+      className="relative aspect-16/10 w-full overflow-hidden rounded-md border border-primary60 bg-black"
     >
       <canvas
         ref={canvasRef}
@@ -97,11 +97,11 @@ export function Storyboard({
       ))}
       <div className="absolute bottom-2 left-3 right-3 z-10 flex flex-wrap justify-between gap-2">
         {hud && (
-          <span className="rounded-sm bg-black px-2 py-1 text-string text-primary">
+          <span className="rounded-xs bg-black px-2 py-1 text-string text-primary">
             Storyboard / motion is reduced
           </span>
         )}
-        <span className="rounded-sm bg-black px-2 py-1 text-caption text-primary">
+        <span className="rounded-xs bg-black px-2 py-1 text-caption text-primary">
           {active + 1}. {scene.steps[active].say}
         </span>
       </div>

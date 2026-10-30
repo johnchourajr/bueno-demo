@@ -16,7 +16,7 @@ export function Anatomy() {
         {steps.map((step) => (
           <div
             key={step.name}
-            className="col-span-2 grid content-start gap-2 rounded-md border-1 border-dotted border-primary60 p-4"
+            className="col-span-2 grid content-start gap-2 rounded-md border border-dotted border-primary60 p-4"
           >
             <code className="font-mono text-body text-primary">
               {step.name}
@@ -40,7 +40,7 @@ export function Flags() {
         {flags.map((row) => (
           <div
             key={row.flag}
-            className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] gap-4 border-t-1 border-dotted border-primary25 py-3"
+            className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] gap-4 border-t border-dotted border-primary25 py-3"
           >
             <code className="font-mono text-caption text-primary">
               {row.flag}
@@ -51,7 +51,7 @@ export function Flags() {
         <Link
           href="/demos"
           data-testid="flags-demos"
-          className="border-t-1 border-dotted border-primary25 py-3 text-string text-primary hover:text-primary60"
+          className="border-t border-dotted border-primary25 py-3 text-string text-primary hover:text-primary60"
         >
           See ten of them in action / demos →
         </Link>
@@ -82,7 +82,7 @@ export function Credits() {
         {credits.map((c) => (
           <div
             key={c.role}
-            className="grid grid-cols-[minmax(0,12rem)_minmax(0,1fr)] gap-4 border-t-1 border-dotted border-primary25 py-3"
+            className="grid grid-cols-[minmax(0,12rem)_minmax(0,1fr)] gap-4 border-t border-dotted border-primary25 py-3"
           >
             <dt className="text-string text-primary">{c.role}</dt>
             <dd className="text-body text-primary">{c.who}</dd>

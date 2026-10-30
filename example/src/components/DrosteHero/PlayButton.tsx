@@ -20,7 +20,7 @@ export function PlayButton({
       aria-pressed={playing}
       aria-label={`${playing ? "Pause" : "Play"} ${label}`}
       onClick={onToggle}
-      className="grid h-9 w-9 shrink-0 place-items-center rounded-sm border-0.5 border-dashed border-primary text-primary hover:bg-primary10 focus-visible:outline-1 focus-visible:outline-primary"
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-xs border-0.5 border-dashed border-primary text-primary hover:bg-primary10 focus-visible:outline-1 focus-visible:outline-primary"
     >
       <svg
         viewBox="0 0 12 12"

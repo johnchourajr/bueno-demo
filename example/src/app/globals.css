@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+/* Tailwind 4 dropped the pointer from buttons; v3 had it, and the site expects it. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 @font-face {
   font-family: "GoshaSans-Ultrabold";
@@ -39,12 +46,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .subgrid {
-    @apply grid grid-cols-subgrid;
-  }
+@utility subgrid {
+  @apply grid grid-cols-subgrid;
 }

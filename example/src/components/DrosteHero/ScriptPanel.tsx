@@ -18,8 +18,8 @@ export function ScriptPanel({
   return (
     <div className="flex flex-1 flex-col min-w-0">
       {/* The file as an editor tab, open over the code below it. */}
-      <div className="flex border-b-1 border-primary25 px-4 pt-3">
-        <span className="-mb-px rounded-t-sm border-1 border-b-0 border-primary60 bg-black px-3 py-1.5 font-mono text-caption text-primary">
+      <div className="flex border-b border-primary25 px-4 pt-3">
+        <span className="-mb-px rounded-t-xs border border-b-0 border-primary60 bg-black px-3 py-1.5 font-mono text-caption text-primary">
           {file}
         </span>
       </div>
@@ -27,7 +27,7 @@ export function ScriptPanel({
         {script.map((line, i) => {
           const on = line.step !== undefined && line.step === active;
           const className = clsx(
-            "block w-full whitespace-pre rounded-sm pl-1 text-left transition-colors",
+            "block w-full whitespace-pre rounded-xs pl-1 text-left transition-colors",
             on && "bg-primary text-black",
           );
           if (onPick && line.step !== undefined) {

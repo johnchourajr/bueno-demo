@@ -1,6 +1,6 @@
 import { buenTypeTailwind } from "@bueno-dev/type";
 import type { Config } from "tailwindcss";
-import { PluginAPI } from "tailwindcss/types/config";
+import type { PluginAPI } from "tailwindcss/plugin";
 import { customHeadlines, customTexts } from "./src/config/type";
 
 function typePlugin({ addUtilities }: PluginAPI) {
