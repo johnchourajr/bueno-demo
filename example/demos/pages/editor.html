@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Launch notes</title>
+<title>Texto de apertura</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 20px/1.7 Georgia, serif; background: #fff; color: #1f1f1f; }
@@ -22,25 +22,25 @@
 </head>
 <body>
 <div class="bar">
-  <button data-testid="bold" title="Bold">B</button>
-  <button data-testid="italic" title="Italic"><i>I</i></button>
-  <button title="Underline"><u>U</u></button>
+  <button data-testid="bold" title="Negrita">B</button>
+  <button data-testid="italic" title="Cursiva"><i>I</i></button>
+  <button title="Subrayado"><u>U</u></button>
   <span class="sep"></span>
   <span class="sw" data-testid="hl-yellow" style="background:#fde047"></span>
   <span class="sw" style="background:#86efac"></span>
   <span class="sw" style="background:#f9a8d4"></span>
   <span class="sep"></span>
-  <button data-testid="comment" title="Comment">✎</button>
+  <button data-testid="comment" title="Comentar">✎</button>
   <span style="flex:1"></span>
-  <span style="color:#999">Saved</span>
+  <span style="color:#999">Guardado</span>
 </div>
 <div class="doc" contenteditable="true" spellcheck="false">
-  <h1>Launch notes</h1>
-  <p id="p1">Version four ships with a rebuilt sync engine. Changes now land on every device in under a second, even on hotel wifi.</p>
-  <p>Offline edits merge cleanly when you reconnect, and the activity panel shows who changed what.</p>
-  <p class="note">Draft · last edited by Maya</p>
+  <h1>Texto de apertura</h1>
+  <p id="p1">Hace mucho tiempo, en una galaxia muy, muy lejana, la versión cuatro llegó con un hiperimpulsor reconstruido. Los mensajes llegan a toda la flota en menos de un segundo, incluso desde Hoth.</p>
+  <p>Lo que escribas sin conexión se sincroniza al salir del hiperespacio, y el panel de actividad muestra quién cambió qué.</p>
+  <p class="note">Borrador · editado por última vez por Leia</p>
 </div>
-<div class="comment" id="comment"><b>Maya</b><br>Can we put a number on this in the release post?</div>
+<div class="comment" id="comment"><b>Leia</b><br>¿Podemos dar una cifra en el comunicado? ¿En pársecs?</div>
 <script>
   const keep = (e) => e.preventDefault();
   document.querySelectorAll(".bar button, .sw").forEach((el) => el.addEventListener("mousedown", keep));

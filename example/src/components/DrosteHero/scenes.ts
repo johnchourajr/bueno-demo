@@ -206,7 +206,7 @@ export const heroScript: ScriptLine[] = [
   { text: '  "viewport": [1280, 800],' },
   { text: '  "steps": [' },
   { text: '    { "hover": "h1", "zoom": true },', step: 0 },
-  { text: '    { "type": "#team", "text": "Northwind" },', step: 1 },
+  { text: '    { "type": "#team", "text": "Alianza Rebelde" },', step: 1 },
   { text: '    { "click": "#summaries" },', step: 2 },
   { text: '    { "click": "#save" },', step: 3 },
   { text: '    { "click": "#latest-demo", "after": 1400 }', step: 4 },
@@ -311,7 +311,7 @@ const JSON_LINES = [
   "{",
   '  "url": "localhost:3000/settings",',
   '  "steps": [',
-  '    { "type": "#team", "text": "Northwind" },',
+  '    { "type": "#team", "text": "Alianza Rebelde" },',
   '    { "click": "#summaries" }, { "click": "#save" }',
   "  ]",
   "}",
@@ -355,7 +355,7 @@ export const promptScene: Scene = {
   },
   draw(ctx, t) {
     const { i, f } = split(t, this.period);
-    const top = windowChrome(ctx, "~/acme / agent");
+    const top = windowChrome(ctx, "~/rebeldes / agent");
     const at = (step: number, x = 0) => reached(t, this.period, step, x);
 
     // What's been sent so far, oldest first.
@@ -473,7 +473,7 @@ function browserChrome(
 
 // ── Take two: the capture, a real browser driven by the script ──
 
-const TEAM = "Northwind";
+const TEAM = "Alianza Rebelde";
 /** Where the browser's page area starts, and how the app scales into it. */
 const PAGE_TOP = 214;
 const PAGE_SCALE = 0.724;
@@ -550,36 +550,39 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   ctx.roundRect(40, 30, 36, 36, 8);
   ctx.fill();
   ctx.font = `26px ${BOLD}`;
-  ctx.fillText("Acme", 92, 58);
-  ["Overview", "Projects", "Reports", "Team", "Settings"].forEach((item, n) => {
-    const y = 130 + n * 58;
-    if (item === "Settings") slab(ctx, 24, y - 8, 252, 48, 8, APP.field);
-    ctx.strokeStyle = item === "Settings" ? REC : REC60;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(46, y + 6, 18, 18);
-    ctx.fillStyle = item === "Settings" ? REC : REC60;
-    ctx.font = `20px ${REGULAR}`;
-    ctx.fillText(item, 82, y + 23);
-  });
+  ctx.fillText("Rebeldes", 92, 58);
+  ["Resumen", "Proyectos", "Informes", "Equipo", "Ajustes"].forEach(
+    (item, n) => {
+      const y = 130 + n * 58;
+      if (item === "Ajustes") slab(ctx, 24, y - 8, 252, 48, 8, APP.field);
+      ctx.strokeStyle = item === "Ajustes" ? REC : REC60;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(46, y + 6, 18, 18);
+      ctx.fillStyle = item === "Ajustes" ? REC : REC60;
+      ctx.font = `20px ${REGULAR}`;
+      ctx.fillText(item, 82, y + 23);
+    },
+  );
   ctx.fillStyle = APP.fill;
   ctx.beginPath();
   ctx.arc(60, SOURCE_H - 60, 20, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = REC;
   ctx.font = `18px ${REGULAR}`;
-  ctx.fillText("Jo Rivera", 94, SOURCE_H - 54);
+  ctx.fillText("Leia Orgánica", 94, SOURCE_H - 54);
 
   // Top bar.
   ctx.fillStyle = REC30;
   ctx.fillRect(SIDEBAR_W, TOPBAR_H - 2, SOURCE_W - SIDEBAR_W, 2);
   ctx.fillStyle = REC60;
   ctx.font = `18px ${REGULAR}`;
-  ctx.fillText("Acme  /  Settings  /", 340, 52);
+  const crumbs = "Rebeldes  /  Ajustes  /  ";
+  ctx.fillText(crumbs, 340, 52);
   ctx.fillStyle = REC;
-  ctx.fillText("General", 518, 52);
+  ctx.fillText("General", 340 + ctx.measureText(crumbs).width, 52);
   slab(ctx, 1080, 24, 360, 42, 21, APP.field);
   ctx.fillStyle = REC60;
-  ctx.fillText("Search   ⌘K", 1110, 51);
+  ctx.fillText("Buscar   ⌘K", 1110, 51);
   ctx.fillStyle = APP.fill;
   ctx.strokeStyle = REC;
   ctx.lineWidth = 2;
@@ -589,7 +592,7 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   ctx.stroke();
 
   // Tabs over the form.
-  ["General", "Members", "Billing", "API"].forEach((tab, n) => {
+  ["General", "Miembros", "Facturación", "API"].forEach((tab, n) => {
     const x = 450 + n * 130;
     ctx.fillStyle = n === 0 ? REC : REC60;
     ctx.font = `18px ${REGULAR}`;
@@ -602,7 +605,7 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   slab(ctx, 1190, 130, 370, 320, 14, APP.card);
   ctx.fillStyle = REC;
   ctx.font = `22px ${BOLD}`;
-  ctx.fillText("Latest demo", 1215, 172);
+  ctx.fillText("Última demo", 1215, 172);
   const bx = DEMO_BOX.x * SOURCE_W;
   const by = DEMO_BOX.y * SOURCE_H;
   const bw = DEMO_BOX.k * SOURCE_W;
@@ -627,11 +630,11 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   slab(ctx, 450, 640, 1110, 280, 14, APP.card);
   ctx.fillStyle = REC;
   ctx.font = `24px ${BOLD}`;
-  ctx.fillText("Members", 490, 690);
+  ctx.fillText("Miembros", 490, 690);
   [
-    ["Jo Rivera", "Owner"],
-    ["Sam Okafor", "Admin"],
-    ["Priya Nair", "Member"],
+    ["Leia Orgánica", "Propietaria"],
+    ["Juan Solo", "Admin"],
+    ["Obi-Juan Kenobi", "Miembro"],
   ].forEach(([name, role], n) => {
     const y = 740 + n * 58;
     ctx.fillStyle = APP.fill;
@@ -669,27 +672,29 @@ function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = REC;
   ctx.font = `40px ${BOLD}`;
-  ctx.fillText("Team settings", 500, 252);
+  ctx.fillText("Ajustes del equipo", 500, 252);
   ctx.font = `16px ${REGULAR}`;
-  ctx.fillText("T E A M   N A M E", 500, 302);
+  ctx.fillText("N O M B R E   D E L   E Q U I P O", 500, 302);
 
   slab(ctx, 500, 315, 600, 52, 8, APP.field);
   ctx.fillStyle = REC;
   ctx.font = `22px ${REGULAR}`;
-  ctx.fillText(state.typed || "Acme", 516, 350);
+  ctx.fillText(state.typed || "Rebeldes", 516, 350);
 
-  ctx.fillText("Email me weekly summaries", 500, 444);
+  ctx.fillText("Resumen semanal por correo", 500, 444);
   slab(ctx, 1050, 420, 58, 32, 16, state.switchOn ? REC : APP.field);
   ctx.fillStyle = state.switchOn ? "#000" : REC;
   ctx.beginPath();
   ctx.arc(state.switchOn ? 1092 : 1066, 436, 10, 0, Math.PI * 2);
   ctx.fill();
 
-  slab(ctx, 500, 500, 112, 50, 8, APP.fill);
-  ctx.fillStyle = REC;
+  // Sized to its label, with 28px either side.
   ctx.font = `20px ${BOLD}`;
-  ctx.fillText("SAVE", 528, 533);
-  if (state.saved) ctx.fillText("✓ SAVED", 640, 533);
+  const save = ctx.measureText("GUARDAR").width + 56;
+  slab(ctx, 500, 500, save, 50, 8, APP.fill);
+  ctx.fillStyle = REC;
+  ctx.fillText("GUARDAR", 528, 533);
+  if (state.saved) ctx.fillText("✓ GUARDADO", 528 + save, 533);
 }
 
 export const captureScene: Scene = {
@@ -730,7 +735,7 @@ export const captureScene: Scene = {
   },
   draw(ctx, t) {
     const { i, f } = split(t, this.period);
-    browserChrome(ctx, "Team settings", "localhost:3000/settings");
+    browserChrome(ctx, "Ajustes del equipo", "localhost:3000/settings");
     ctx.save();
     ctx.beginPath();
     ctx.rect(62, PAGE_TOP, SOURCE_W - 124, SOURCE_H - 62 - PAGE_TOP);
@@ -812,7 +817,7 @@ export const reviewScene: Scene = {
   draw(ctx, t) {
     const { i } = split(t, this.period);
     const file = REVIEW_PICKS[i];
-    const top = windowChrome(ctx, "acme / out");
+    const top = windowChrome(ctx, "rebeldes / out");
     ctx.strokeStyle = REC30;
     ctx.lineWidth = 2;
     ctx.beginPath();

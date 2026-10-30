@@ -5,7 +5,7 @@
   "steps": [
     { "wait": 600 },
     { "press": "ControlOrMeta+K", "after": 700 },
-    { "type": "[data-testid=palette-input]", "text": "dark", "delay": 90, "after": 700 },
+    { "type": "[data-testid=palette-input]", "text": "oscuro", "delay": 90, "after": 700 },
     { "press": "Enter", "after": 1600 }
   ]
 }

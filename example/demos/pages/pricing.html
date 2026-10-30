@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Pricing</title>
+<title>Precios</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: #faf7f2; color: #1c1917; }
@@ -29,16 +29,16 @@
 </head>
 <body>
 <main>
-  <h1>Pricing that scales with you</h1>
-  <p class="sub">Every plan includes unlimited projects.</p>
+  <h1>Planes para toda la galaxia</h1>
+  <p class="sub">Todos los planes incluyen misiones ilimitadas.</p>
   <div class="toggle">
-    <button data-testid="monthly" aria-pressed="true">Monthly</button>
-    <button data-testid="annual" aria-pressed="false">Annual<em>−20%</em></button>
+    <button data-testid="monthly" aria-pressed="true">Mensual</button>
+    <button data-testid="annual" aria-pressed="false">Anual<em>−20%</em></button>
   </div>
   <div class="tiers">
-    <div class="tier"><h2>Starter</h2><div class="price" data-m="0" data-y="0">$0<small> / mo</small></div><div class="was"></div><ul><li>3 members</li><li>Community support</li></ul><button class="cta">Get started</button></div>
-    <div class="tier pro"><h2>Pro</h2><div class="price" data-m="30" data-y="24">$30<small> / mo</small></div><div class="was"></div><ul><li>Unlimited members</li><li>Priority support</li><li>SSO</li></ul><button class="cta" data-testid="start-pro">Start free trial</button></div>
-    <div class="tier"><h2>Business</h2><div class="price" data-m="80" data-y="64">$80<small> / mo</small></div><div class="was"></div><ul><li>Audit log</li><li>Dedicated manager</li></ul><button class="cta">Talk to sales</button></div>
+    <div class="tier"><h2>Padawan</h2><div class="price" data-m="0" data-y="0">0 cr<small> / mes</small></div><div class="was"></div><ul><li>3 miembros</li><li>Soporte de la comunidad</li></ul><button class="cta">Empezar</button></div>
+    <div class="tier pro"><h2>Caballero</h2><div class="price" data-m="30" data-y="24">30 cr<small> / mes</small></div><div class="was"></div><ul><li>Miembros ilimitados</li><li>Soporte prioritario</li><li>Inicio de sesión con la Fuerza</li></ul><button class="cta" data-testid="start-pro">Prueba gratis</button></div>
+    <div class="tier"><h2>Maestro Yedi</h2><div class="price" data-m="80" data-y="64">80 cr<small> / mes</small></div><div class="was"></div><ul><li>Registro de auditoría</li><li>Un maestro dedicado</li></ul><button class="cta">Habla con el Consejo</button></div>
   </div>
 </main>
 <script>
@@ -48,13 +48,13 @@
     const annual = b.dataset.testid === "annual";
     document.querySelectorAll(".price").forEach((p) => {
       const v = annual ? p.dataset.y : p.dataset.m;
-      p.innerHTML = `$${v}<small> / mo</small>`;
-      p.nextElementSibling.textContent = annual && p.dataset.m !== "0" ? `$${p.dataset.m}` : "";
+      p.innerHTML = `${v} cr<small> / mes</small>`;
+      p.nextElementSibling.textContent = annual && p.dataset.m !== "0" ? `${p.dataset.m} cr` : "";
     });
   });
   document.querySelector("[data-testid=start-pro]").onclick = (e) => {
     e.target.classList.add("on");
-    e.target.textContent = "Trial started ✓";
+    e.target.textContent = "Prueba iniciada ✓";
   };
 </script>
 </body>
