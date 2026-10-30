@@ -2,7 +2,7 @@
   "url": "../pages/upload.html",
   "viewport": [1280, 800],
   "steps": [
-    { "upload": "[data-testid=drop]", "file": "../assets/contacts.csv", "after": 1900 },
+    { "upload": "[data-testid=drop]", "file": "../assets/estrella_de_la_muerte.csv", "after": 1900 },
     { "click": "[data-testid=import]", "after": 1300 }
   ]
 }

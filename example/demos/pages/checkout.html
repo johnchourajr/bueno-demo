@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Checkout</title>
+<title>Pago</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 17px/1.5 system-ui, sans-serif; background: #eef1f4; color: #14171c; }
@@ -30,25 +30,25 @@
 <body>
 <main>
   <div class="card" id="form">
-    <h1>Upgrade to Team</h1>
+    <h1>Únete al Escuadrón Rojo</h1>
     <div class="plans">
-      <div class="plan" data-testid="monthly" aria-checked="true"><b>Monthly</b><span>$24 / seat</span></div>
-      <div class="plan" data-testid="yearly" aria-checked="false"><b>Yearly</b><span>$19 / seat · save 20%</span></div>
+      <div class="plan" data-testid="monthly" aria-checked="true"><b>Mensual</b><span>24 cr / piloto</span></div>
+      <div class="plan" data-testid="yearly" aria-checked="false"><b>Anual</b><span>19 cr / piloto · ahorra 20%</span></div>
     </div>
-    <label for="card">Card number</label>
+    <label for="card">Número de tarjeta</label>
     <input id="card" data-testid="card" placeholder="1234 1234 1234 1234">
     <div class="row">
-      <div><label>Expiry</label><input data-testid="exp" placeholder="MM / YY"></div>
+      <div><label>Vencimiento</label><input data-testid="exp" placeholder="MM / AA"></div>
       <div><label>CVC</label><input data-testid="cvc" placeholder="123"></div>
     </div>
-    <button class="pay" data-testid="pay">Pay $288</button>
-    <div class="ok" id="ok"><div class="tick">✓</div><b>You're on Team</b><br><span style="color:#6b7380">Receipt sent to maya@northwind.co</span></div>
+    <button class="pay" data-testid="pay">Pagar 288 cr</button>
+    <div class="ok" id="ok"><div class="tick">✓</div><b>Ya vuelas con el Escuadrón Rojo</b><br><span style="color:#6b7380">Recibo enviado a leia@alianza.reb</span></div>
   </div>
   <div class="card sum">
-    <h1>Summary</h1>
-    <div><span>Team, 12 seats</span><span id="line">$288 / mo</span></div>
-    <div><span>Tax</span><span>$0</span></div>
-    <div class="total"><span>Due today</span><span id="total">$288</span></div>
+    <h1>Resumen</h1>
+    <div><span>Escuadrón Rojo, 12 pilotos</span><span id="line">288 cr / mes</span></div>
+    <div><span>Impuesto imperial</span><span>0 cr</span></div>
+    <div class="total"><span>Total hoy</span><span id="total">288 cr</span></div>
   </div>
 </main>
 <script>
@@ -56,9 +56,9 @@
   plans.forEach((p) => p.onclick = () => {
     plans.forEach((o) => o.setAttribute("aria-checked", o === p));
     const yearly = p.dataset.testid === "yearly";
-    document.getElementById("line").textContent = yearly ? "$2,736 / yr" : "$288 / mo";
-    document.getElementById("total").textContent = yearly ? "$2,736" : "$288";
-    document.querySelector(".pay").textContent = yearly ? "Pay $2,736" : "Pay $288";
+    document.getElementById("line").textContent = yearly ? "2.736 cr / año" : "288 cr / mes";
+    document.getElementById("total").textContent = yearly ? "2.736 cr" : "288 cr";
+    document.querySelector(".pay").textContent = yearly ? "Pagar 2.736 cr" : "Pagar 288 cr";
   });
   document.querySelector(".pay").onclick = () => {
     document.querySelectorAll("#form > :not(#ok)").forEach((el) => el.style.display = "none");

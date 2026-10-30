@@ -3,7 +3,7 @@
   "viewport": [1280, 800],
   "steps": [
     { "wait": 900 },
-    { "type": "[data-testid=email]", "text": "ravi@northwind.co", "after": 500 },
+    { "type": "[data-testid=email]", "text": "juan.solo@alianza.reb", "after": 500 },
     { "click": "[data-testid=role-editor]", "after": 700 },
     { "click": "[data-testid=send]", "after": 1500 }
   ]

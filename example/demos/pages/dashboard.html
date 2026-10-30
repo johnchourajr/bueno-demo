@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Revenue</title>
+<title>Reclutamiento</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 14px/1.45 system-ui, sans-serif; background: #0f1115; color: #e8e6e1; }
@@ -29,7 +29,7 @@
 <body>
 <main>
   <div class="top">
-    <h1>Revenue</h1>
+    <h1>Reclutamiento</h1>
     <div class="tabs">
       <button data-testid="r7" aria-pressed="true">7d</button>
       <button data-testid="r30" aria-pressed="false">30d</button>
@@ -37,9 +37,9 @@
     </div>
   </div>
   <div class="stats">
-    <div class="stat"><small>Revenue</small><b id="s1">$18,420</b><span class="up">+12.4%</span></div>
-    <div class="stat"><small>New customers</small><b id="s2">142</b><span class="up">+8.1%</span></div>
-    <div class="stat"><small>Churn</small><b id="s3">1.9%</b><span class="up">−0.3 pts</span></div>
+    <div class="stat"><small>Midiclorianos</small><b id="s1">18.420</b><span class="up">+12,4 %</span></div>
+    <div class="stat"><small>Nuevos reclutas</small><b id="s2">142</b><span class="up">+8,1 %</span></div>
+    <div class="stat"><small>Bajas al Lado Oscuro</small><b id="s3">1,9 %</b><span class="up">−0,3 pts</span></div>
   </div>
   <div class="chart">
     <div class="bars" id="bars"></div>
@@ -48,9 +48,9 @@
 </main>
 <script>
   const sets = {
-    "7d": { labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], v: [42,55,48,71,66,38,44], stats: ["$18,420","142","1.9%"] },
-    "30d": { labels: ["W1","W2","W3","W4","W5","W6","W7"], v: [52,61,58,80,92,74,88], stats: ["$76,910","611","2.1%"] },
-    "90d": { labels: ["Jul","Aug","Sep","Oct","Nov","Dec","Jan"], v: [40,48,63,70,77,95,84], stats: ["$221,300","1,804","2.4%"] },
+    "7d": { labels: ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"], v: [42,55,48,71,66,38,44], stats: ["18.420","142","1,9 %"] },
+    "30d": { labels: ["S1","S2","S3","S4","S5","S6","S7"], v: [52,61,58,80,92,74,88], stats: ["76.910","611","2,1 %"] },
+    "90d": { labels: ["Jul","Ago","Sep","Oct","Nov","Dic","Ene"], v: [40,48,63,70,77,95,84], stats: ["221.300","1.804","2,4 %"] },
   };
   const bars = document.getElementById("bars");
   for (let i = 0; i < 7; i++) {
@@ -64,7 +64,7 @@
     const s = sets[key];
     [...bars.children].forEach((b, i) => {
       b.style.height = `${s.v[i]}%`;
-      b.querySelector(".tip").textContent = `${s.labels[i]} · $${(s.v[i] * 312).toLocaleString()}`;
+      b.querySelector(".tip").textContent = `${s.labels[i]} · ${(s.v[i] * 312).toLocaleString("de")} midiclorianos`;
     });
     document.getElementById("axis").innerHTML = s.labels.map((l) => `<span>${l}</span>`).join("");
     s.stats.forEach((v, i) => document.getElementById(`s${i + 1}`).textContent = v);
