@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cortado</title>
+<title>Cantina de Mos Eisley</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.45 system-ui, sans-serif; background: #f6efe6; color: #2a1d14; }
-  .hero { height: 300px; background: radial-gradient(circle at 50% 60%, #c48a5a 0 70px, #8a5a36 71px 92px, #f0e2d1 93px); position: relative; }
+  body { margin: 0; font: 16px/1.45 system-ui, sans-serif; background: #f3e7d3; color: #2a1d14; }
+  .hero { height: 300px; background: radial-gradient(circle at 50% 60%, #8ec5f0 0 70px, #3f6f9e 71px 92px, #ecdcc0 93px); position: relative; }
   .hero .bag { position: absolute; top: 18px; right: 18px; width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 18px; }
   .hero .n { position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; border-radius: 50%; background: #c2410c; color: #fff; font-size: 12px; display: none; place-items: center; }
   .hero .n.on { display: grid; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
@@ -29,32 +29,32 @@
 <body>
 <div class="hero"><div class="bag">🛍<span class="n" id="n">1</span></div></div>
 <div class="body">
-  <h1>Cortado</h1>
-  <p class="sub">Equal parts espresso and steamed milk.</p>
-  <h2>Size</h2>
+  <h1>Leche azul</h1>
+  <p class="sub">De bantha, recién ordeñada. No atendemos a droides.</p>
+  <h2>Tamaño</h2>
   <div class="sizes">
-    <button data-testid="small" aria-pressed="true">Small</button>
-    <button data-testid="medium" aria-pressed="false">Medium</button>
-    <button data-testid="large" aria-pressed="false">Large</button>
+    <button data-testid="small" aria-pressed="true">Pequeña</button>
+    <button data-testid="medium" aria-pressed="false">Mediana</button>
+    <button data-testid="large" aria-pressed="false">Wookiee</button>
   </div>
   <h2>Extras</h2>
-  <div class="opt"><span>Oat milk</span><button class="switch" data-testid="oat" role="switch" aria-checked="false"></button></div>
-  <div class="opt"><span>Extra shot</span><button class="switch" role="switch" aria-checked="false"></button></div>
+  <div class="opt"><span>Hielo de Hoth</span><button class="switch" data-testid="oat" role="switch" aria-checked="false"></button></div>
+  <div class="opt"><span>Especia de Kessel</span><button class="switch" role="switch" aria-checked="false"></button></div>
 </div>
-<button class="add" data-testid="add"><span>Add to order</span><span id="price">$4.20</span></button>
+<button class="add" data-testid="add"><span>Añadir al pedido</span><span id="price">4,20 cr</span></button>
 <script>
   const sizes = document.querySelectorAll(".sizes button");
   const base = { small: 4.2, medium: 4.8, large: 5.4 };
   const price = () => {
     let p = base[document.querySelector(".sizes [aria-pressed=true]").dataset.testid];
     document.querySelectorAll(".switch[aria-checked=true]").forEach(() => p += 0.6);
-    document.getElementById("price").textContent = `$${p.toFixed(2)}`;
+    document.getElementById("price").textContent = `${p.toFixed(2).replace(".", ",")} cr`;
   };
   sizes.forEach((b) => b.onclick = () => { sizes.forEach((o) => o.setAttribute("aria-pressed", o === b)); price(); });
   document.querySelectorAll(".switch").forEach((s) => s.onclick = () => { s.setAttribute("aria-checked", s.getAttribute("aria-checked") !== "true"); price(); });
   document.querySelector(".add").onclick = (e) => {
     document.getElementById("n").classList.add("on");
-    e.currentTarget.firstElementChild.textContent = "Added ✓";
+    e.currentTarget.firstElementChild.textContent = "Añadido ✓";
   };
 </script>
 </body>

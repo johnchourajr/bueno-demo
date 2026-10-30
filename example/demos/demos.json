@@ -39,7 +39,7 @@
     "title": "Title, end card and brand",
     "option": "--title / --end-cap / --brand",
     "blurb": "A lower-third title opens the take and an end card closes it. The brand file sets the ink, paper, ripple colour, display font, logo and footer.",
-    "flags": ["--title", "Annual billing", "--kicker", "Pricing", "--end-cap", "--brand", "brand.json"]
+    "flags": ["--title", "Plan anual", "--kicker", "Precios", "--end-cap", "--brand", "brand.json"]
   },
   {
     "id": "speed",

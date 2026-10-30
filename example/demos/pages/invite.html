@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Members</title>
+<title>Miembros</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 17px/1.5 system-ui, sans-serif; background: #f4f3ef; color: #1b1a17; }
@@ -29,22 +29,22 @@
 </head>
 <body>
 <main>
-  <h1>Members</h1>
-  <p class="sub">Invite people to the Northwind workspace.</p>
+  <h1>Miembros</h1>
+  <p class="sub">Invita gente al espacio de trabajo de la Alianza Rebelde.</p>
   <div class="card invite">
-    <input id="email" data-testid="email" placeholder="name@company.com">
+    <input id="email" data-testid="email" placeholder="nombre@alianza.reb">
     <div class="roles" role="group">
-      <button data-testid="role-viewer" aria-pressed="true">Viewer</button>
+      <button data-testid="role-viewer" aria-pressed="true">Lector</button>
       <button data-testid="role-editor" aria-pressed="false">Editor</button>
       <button data-testid="role-admin" aria-pressed="false">Admin</button>
     </div>
-    <button class="send" data-testid="send">Send invite</button>
+    <button class="send" data-testid="send">Enviar invitación</button>
   </div>
   <div class="card">
     <ul id="list">
-      <li><span class="av" style="background:#c2410c">MR</span><span class="who">Maya Rivera<small>maya@northwind.co</small></span><span class="tag">Admin</span></li>
-      <li><span class="av" style="background:#0f766e">JO</span><span class="who">Jonah Okafor<small>jonah@northwind.co</small></span><span class="tag">Editor</span></li>
-      <li><span class="av" style="background:#6d28d9">LS</span><span class="who">Lena Strand<small>lena@northwind.co</small></span><span class="tag">Viewer</span></li>
+      <li><span class="av" style="background:#c2410c">LO</span><span class="who">Leia Orgánica<small>leia@alianza.reb</small></span><span class="tag">Admin</span></li>
+      <li><span class="av" style="background:#0f766e">OJ</span><span class="who">Obi-Juan Kenobi<small>obijuan@alianza.reb</small></span><span class="tag">Editor</span></li>
+      <li><span class="av" style="background:#6d28d9">AR</span><span class="who">Arturito<small>arturito@droides.reb</small></span><span class="tag">Lector</span></li>
     </ul>
   </div>
 </main>
@@ -52,11 +52,11 @@
   const roles = document.querySelectorAll(".roles button");
   roles.forEach((b) => b.onclick = () => roles.forEach((o) => o.setAttribute("aria-pressed", o === b)));
   document.querySelector(".send").onclick = () => {
-    const email = document.getElementById("email").value || "someone@northwind.co";
+    const email = document.getElementById("email").value || "alguien@alianza.reb";
     const role = document.querySelector(".roles [aria-pressed=true]").textContent;
     const li = document.createElement("li");
     li.className = "new";
-    li.innerHTML = `<span class="av" style="background:#2b59c3">${email.slice(0, 2).toUpperCase()}</span><span class="who">${email}<small>Invite sent just now</small></span><span class="tag">${role} · pending</span>`;
+    li.innerHTML = `<span class="av" style="background:#2b59c3">${email.slice(0, 2).toUpperCase()}</span><span class="who">${email}<small>Invitación enviada ahora mismo</small></span><span class="tag">${role} · pendiente</span>`;
     document.getElementById("list").prepend(li);
     document.getElementById("email").value = "";
   };

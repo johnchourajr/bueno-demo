@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Inbox</title>
+<title>Bandeja de entrada</title>
 <style>
   * { box-sizing: border-box; }
   :root { --bg: #f7f7f5; --panel: #fff; --ink: #1d1d1b; --mute: #85837d; --line: #eae8e3; --hi: #f1efe9; }
@@ -29,24 +29,24 @@
 </head>
 <body>
 <div class="app">
-  <nav><div class="on">Inbox</div><div>Starred</div><div>Sent</div><div>Archive</div></nav>
+  <nav><div class="on">Entrada</div><div>Destacados</div><div>Enviados</div><div>Archivo</div></nav>
   <section>
-    <span class="hint">Command menu <kbd>⌘K</kbd></span>
-    <h2 style="margin:0 0 14px">Inbox</h2>
-    <div class="mail"><b>Maya Rivera</b><span>Q3 numbers are in, and they look great</span></div>
-    <div class="mail"><b>Jonah Okafor</b><span>Re: the sync engine rollout plan</span></div>
-    <div class="mail"><b>Lena Strand</b><span>Design review moved to Thursday</span></div>
-    <div class="mail"><b>Billing</b><span>Your invoice for October</span></div>
-    <div class="mail"><b>Ravi Patel</b><span>Quick question about SSO</span></div>
+    <span class="hint">Menú de comandos <kbd>⌘K</kbd></span>
+    <h2 style="margin:0 0 14px">Bandeja de entrada</h2>
+    <div class="mail"><b>Leia Orgánica</b><span>Ayúdame, Obi-Juan Kenobi, eres mi única esperanza</span></div>
+    <div class="mail"><b>Juan Solo</b><span>Re: tengo un mal presentimiento sobre esto</span></div>
+    <div class="mail"><b>Chuleta</b><span>RRRAARRWHHGWWR</span></div>
+    <div class="mail"><b>Imperio, S.A.</b><span>Tu falta de fe es perturbadora (factura de octubre)</span></div>
+    <div class="mail"><b>Citripio</b><span>Las probabilidades de éxito son de 3.720 a 1</span></div>
   </section>
 </div>
 <div class="scrim" id="scrim">
   <div class="pal">
-    <input id="q" data-testid="palette-input" placeholder="Type a command…" autocomplete="off">
-    <div data-k="compose">Compose <span>C</span></div>
-    <div data-k="archive">Archive all read</div>
-    <div data-k="dark theme">Switch to dark theme</div>
-    <div data-k="settings">Open settings <span>,</span></div>
+    <input id="q" data-testid="palette-input" placeholder="Escribe un comando…" autocomplete="off">
+    <div data-k="redactar">Redactar <span>C</span></div>
+    <div data-k="archivar">Archivar los leídos</div>
+    <div data-k="lado oscuro">Pasarse al Lado Oscuro</div>
+    <div data-k="hiperespacio">Saltar al hiperespacio <span>H</span></div>
   </div>
 </div>
 <script>
@@ -68,7 +68,7 @@
       filter();
       q.focus();
     } else if (e.key === "Enter" && scrim.classList.contains("on")) {
-      if (visible()[0]?.dataset.k === "dark theme") document.documentElement.classList.toggle("dark");
+      if (visible()[0]?.dataset.k === "lado oscuro") document.documentElement.classList.toggle("dark");
       scrim.classList.remove("on");
     } else if (e.key === "Escape") scrim.classList.remove("on");
   });

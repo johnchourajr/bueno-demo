@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Import</title>
+<title>Importar</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 19px/1.5 system-ui, sans-serif; background: #f3f1fb; color: #1d1a2e; }
@@ -24,14 +24,14 @@
 </head>
 <body>
 <main>
-  <h1>Import contacts</h1>
-  <p class="sub">CSV with a header row. We'll match the columns for you.</p>
-  <label class="drop" data-testid="drop">Drop a CSV here, or click to browse<input type="file" accept=".csv"></label>
+  <h1>Importar planos</h1>
+  <p class="sub">CSV con fila de cabecera. Nosotros emparejamos las columnas.</p>
+  <label class="drop" data-testid="drop">Suelta un CSV aquí, o haz clic para buscar<input type="file" accept=".csv"></label>
   <div class="file" id="file">
     <span class="ic">CSV</span>
     <div class="meta"><b id="name"></b> <small id="rows"></small><div class="track"><div class="fill" id="fill"></div></div></div>
   </div>
-  <button class="go" data-testid="import" id="go">Import</button>
+  <button class="go" data-testid="import" id="go">Importar</button>
 </main>
 <script>
   // The label opens a file picker on click; the take attaches a file instead.
@@ -40,14 +40,14 @@
     const f = e.target.files[0];
     const rows = (await f.text()).trim().split("\n").length - 1;
     document.getElementById("name").textContent = f.name;
-    document.getElementById("rows").textContent = `${rows} contacts`;
+    document.getElementById("rows").textContent = `${rows} secciones`;
     document.getElementById("file").classList.add("on");
     requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById("fill").style.width = "100%"));
     setTimeout(() => document.getElementById("go").classList.add("ready"), 1400);
   });
   document.getElementById("go").onclick = (e) => {
     if (!e.target.classList.contains("ready")) return;
-    e.target.textContent = "Imported ✓";
+    e.target.textContent = "Importado ✓";
   };
 </script>
 </body>

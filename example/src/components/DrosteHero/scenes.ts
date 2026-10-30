@@ -206,7 +206,7 @@ export const heroScript: ScriptLine[] = [
   { text: '  "viewport": [1280, 800],' },
   { text: '  "steps": [' },
   { text: '    { "hover": "h1", "zoom": true },', step: 0 },
-  { text: '    { "type": "#team", "text": "Northwind" },', step: 1 },
+  { text: '    { "type": "#team", "text": "Alianza Rebelde" },', step: 1 },
   { text: '    { "click": "#summaries" },', step: 2 },
   { text: '    { "click": "#save" },', step: 3 },
   { text: '    { "click": "#latest-demo", "after": 1400 }', step: 4 },
@@ -311,7 +311,7 @@ const JSON_LINES = [
   "{",
   '  "url": "localhost:3000/settings",',
   '  "steps": [',
-  '    { "type": "#team", "text": "Northwind" },',
+  '    { "type": "#team", "text": "Alianza Rebelde" },',
   '    { "click": "#summaries" }, { "click": "#save" }',
   "  ]",
   "}",
@@ -355,7 +355,7 @@ export const promptScene: Scene = {
   },
   draw(ctx, t) {
     const { i, f } = split(t, this.period);
-    const top = windowChrome(ctx, "~/acme / agent");
+    const top = windowChrome(ctx, "~/rebeldes / agent");
     const at = (step: number, x = 0) => reached(t, this.period, step, x);
 
     // What's been sent so far, oldest first.
@@ -473,7 +473,7 @@ function browserChrome(
 
 // ── Take two: the capture, a real browser driven by the script ──
 
-const TEAM = "Northwind";
+const TEAM = "Alianza Rebelde";
 /** Where the browser's page area starts, and how the app scales into it. */
 const PAGE_TOP = 214;
 const PAGE_SCALE = 0.724;
@@ -550,7 +550,7 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   ctx.roundRect(40, 30, 36, 36, 8);
   ctx.fill();
   ctx.font = `26px ${BOLD}`;
-  ctx.fillText("Acme", 92, 58);
+  ctx.fillText("Rebeldes", 92, 58);
   ["Overview", "Projects", "Reports", "Team", "Settings"].forEach((item, n) => {
     const y = 130 + n * 58;
     if (item === "Settings") slab(ctx, 24, y - 8, 252, 48, 8, APP.field);
@@ -567,16 +567,16 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   ctx.fill();
   ctx.fillStyle = REC;
   ctx.font = `18px ${REGULAR}`;
-  ctx.fillText("Jo Rivera", 94, SOURCE_H - 54);
+  ctx.fillText("Leia Orgánica", 94, SOURCE_H - 54);
 
   // Top bar.
   ctx.fillStyle = REC30;
   ctx.fillRect(SIDEBAR_W, TOPBAR_H - 2, SOURCE_W - SIDEBAR_W, 2);
   ctx.fillStyle = REC60;
   ctx.font = `18px ${REGULAR}`;
-  ctx.fillText("Acme  /  Settings  /", 340, 52);
+  ctx.fillText("Rebeldes  /  Settings  /", 340, 52);
   ctx.fillStyle = REC;
-  ctx.fillText("General", 518, 52);
+  ctx.fillText("General", 552, 52);
   slab(ctx, 1080, 24, 360, 42, 21, APP.field);
   ctx.fillStyle = REC60;
   ctx.fillText("Search   ⌘K", 1110, 51);
@@ -629,9 +629,9 @@ function drawShell(ctx: CanvasRenderingContext2D) {
   ctx.font = `24px ${BOLD}`;
   ctx.fillText("Members", 490, 690);
   [
-    ["Jo Rivera", "Owner"],
-    ["Sam Okafor", "Admin"],
-    ["Priya Nair", "Member"],
+    ["Leia Orgánica", "Owner"],
+    ["Juan Solo", "Admin"],
+    ["Obi-Juan Kenobi", "Member"],
   ].forEach(([name, role], n) => {
     const y = 740 + n * 58;
     ctx.fillStyle = APP.fill;
@@ -676,7 +676,7 @@ function drawSettings(ctx: CanvasRenderingContext2D, state: Settings) {
   slab(ctx, 500, 315, 600, 52, 8, APP.field);
   ctx.fillStyle = REC;
   ctx.font = `22px ${REGULAR}`;
-  ctx.fillText(state.typed || "Acme", 516, 350);
+  ctx.fillText(state.typed || "Rebeldes", 516, 350);
 
   ctx.fillText("Email me weekly summaries", 500, 444);
   slab(ctx, 1050, 420, 58, 32, 16, state.switchOn ? REC : APP.field);
@@ -812,7 +812,7 @@ export const reviewScene: Scene = {
   draw(ctx, t) {
     const { i } = split(t, this.period);
     const file = REVIEW_PICKS[i];
-    const top = windowChrome(ctx, "acme / out");
+    const top = windowChrome(ctx, "rebeldes / out");
     ctx.strokeStyle = REC30;
     ctx.lineWidth = 2;
     ctx.beginPath();

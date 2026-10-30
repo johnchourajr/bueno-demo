@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Sprint 14</title>
+<title>Sprint Yavin 4</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font: 14px/1.45 system-ui, sans-serif; background: #fbfaf8; color: #22201c; }
@@ -28,27 +28,27 @@
 </style>
 </head>
 <body>
-<header><h1>Sprint 14</h1><span class="pill">6 days left</span></header>
+<header><h1>Sprint Yavin 4</h1><span class="pill">6 días para el ataque</span></header>
 <div class="cols">
-  <section class="col"><h2>To do <span>3</span></h2><div class="stack">
-    <div class="card">Empty state for search<div class="meta"><span class="lbl feat">feature</span>LS</div></div>
-    <div class="card">Bump Node to 24<div class="meta"><span class="lbl chore">chore</span>JO</div></div>
-    <div class="card">Annual billing copy<div class="meta"><span class="lbl feat">feature</span>MR</div></div>
+  <section class="col"><h2>Por hacer <span>3</span></h2><div class="stack">
+    <div class="card">Rescatar a la princesa<div class="meta"><span class="lbl feat">función</span>JS</div></div>
+    <div class="card">Actualizar Node a 26<div class="meta"><span class="lbl chore">tarea</span>AR</div></div>
+    <div class="card">Textos del plan anual<div class="meta"><span class="lbl feat">función</span>LO</div></div>
   </div></section>
-  <section class="col"><h2>In progress <span>2</span></h2><div class="stack">
-    <div class="card" data-testid="flaky">Fix flaky checkout test<div class="meta"><span class="lbl bug">bug</span>JO</div></div>
-    <div class="card">Invite flow polish<div class="meta"><span class="lbl feat">feature</span>LS</div></div>
+  <section class="col"><h2>En curso <span>2</span></h2><div class="stack">
+    <div class="card" data-testid="flaky">Puerto de escape térmico<div class="meta"><span class="lbl bug">error imperial</span>JS</div></div>
+    <div class="card">Pulir las invitaciones<div class="meta"><span class="lbl feat">función</span>OJ</div></div>
   </div></section>
-  <section class="col"><h2>Done <span id="doneCount">2</span></h2><div class="stack" id="doneStack">
-    <div class="card">Dark mode tokens<div class="meta"><span class="lbl feat">feature</span>MR</div></div>
-    <div class="card">Sentry source maps<div class="meta"><span class="lbl chore">chore</span>JO</div></div>
+  <section class="col"><h2>Hecho <span id="doneCount">2</span></h2><div class="stack" id="doneStack">
+    <div class="card">Tokens del Lado Oscuro<div class="meta"><span class="lbl feat">función</span>LO</div></div>
+    <div class="card">Calibrar a Citripio<div class="meta"><span class="lbl chore">tarea</span>AR</div></div>
   </div></section>
 </div>
 <aside id="panel">
-  <span class="lbl bug">bug</span>
-  <h3>Fix flaky checkout test</h3>
-  <p>The payment step times out on slow CI runners. Wait for the Stripe frame instead of a fixed sleep.</p>
-  <button class="done" data-testid="mark-done">Move to Done</button>
+  <span class="lbl bug">error imperial</span>
+  <h3>Puerto de escape térmico</h3>
+  <p>Los planos muestran un puerto de dos metros sin blindaje al final de la trinchera. Un torpedo de protones basta. Apaga la computadora de tiro.</p>
+  <button class="done" data-testid="mark-done">Mover a Hecho</button>
 </aside>
 <script>
   const card = document.querySelector("[data-testid=flaky]");

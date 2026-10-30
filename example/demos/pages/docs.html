@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <title>Docs / Webhooks</title>
@@ -25,31 +25,31 @@
 <body>
 <div class="wrap">
   <nav>
-    <a>Introduction</a><a>Authentication</a><a class="on">Webhooks</a><a>Events</a><a>Retries</a><a>Errors</a>
+    <a>Introducción</a><a>Autenticación</a><a class="on">Webhooks</a><a>Eventos</a><a>Reintentos</a><a>Errores</a>
   </nav>
   <article>
     <h1>Webhooks</h1>
-    <p>Webhooks tell your server when something happens in your workspace: a payment settles, a member joins, a file finishes processing.</p>
+    <p>Los webhooks avisan a tu servidor cuando hay una perturbación en la Fuerza: se completa un pago, se une un piloto, termina de procesarse un holograma.</p>
     <div class="box"></div>
     <h2>Endpoints</h2>
-    <p>Add an endpoint in Settings → Developers. Each endpoint picks the events it listens to, and gets its own signing secret.</p>
+    <p>Añade un endpoint en Ajustes → Desarrolladores. Cada endpoint elige los eventos que escucha y tiene su propio secreto de firma.</p>
     <div class="box"></div>
-    <h2>Payloads</h2>
-    <p>Every delivery is a POST with a JSON body. The type field names the event; data holds the object as it was when the event happened.</p>
+    <h2>Cargas</h2>
+    <p>Cada entrega es un POST con un cuerpo JSON. El campo type nombra el evento; data guarda el objeto tal como estaba cuando ocurrió.</p>
     <div class="box"></div>
-    <h2 id="verify">Verifying signatures</h2>
-    <p>Check the signature header before trusting a payload. The SDK does it in one call:</p>
-    <pre data-testid="snippet"><button class="copy" data-testid="copy">Copy</button><span class="k">import</span> { verify } <span class="k">from</span> <span class="s">"@northwind/sdk"</span>;
+    <h2 id="verify">Verificar firmas</h2>
+    <p>Comprueba la cabecera de firma antes de confiar en una carga. El SDK lo hace en una llamada:</p>
+    <pre data-testid="snippet"><button class="copy" data-testid="copy">Copiar</button><span class="k">import</span> { verify } <span class="k">from</span> <span class="s">"@alianza/sdk"</span>;
 
-<span class="k">const</span> event = verify(body, headers[<span class="s">"x-northwind-signature"</span>], secret);
-<span class="k">if</span> (event.type === <span class="s">"payment.settled"</span>) fulfil(event.data);</pre>
-    <p class="callout" data-testid="callout">Reject anything older than five minutes to block replays.</p>
-    <h2>Retries</h2>
-    <p>Failed deliveries retry with backoff for three days.</p>
+<span class="k">const</span> event = verify(body, headers[<span class="s">"x-alianza-firma"</span>], secret);
+<span class="k">if</span> (event.type === <span class="s">"planos.recibidos"</span>) atacar(event.data);</pre>
+    <p class="callout" data-testid="callout">Rechaza lo que tenga más de cinco minutos para bloquear repeticiones. Podría ser una trampa.</p>
+    <h2>Reintentos</h2>
+    <p>Las entregas fallidas se reintentan con espera creciente durante tres días estándar.</p>
   </article>
 </div>
 <script>
-  document.querySelector(".copy").onclick = (e) => { e.target.classList.add("on"); e.target.textContent = "Copied ✓"; };
+  document.querySelector(".copy").onclick = (e) => { e.target.classList.add("on"); e.target.textContent = "Copiado ✓"; };
 </script>
 </body>
 </html>
